@@ -26,7 +26,8 @@ export const donationsApi = {
 
 export const ngoApi = {
   getNearby: () => api.get('/ngo/nearby-donations'),
-  acceptDonation: (id) => api.post(`/ngo/accept-donation/${id}`)
+  acceptDonation: (id) => api.post(`/ngo/accept-donation/${id}`),
+  denyDonation: (id) => api.post(`/ngo/deny-donation/${id}`)
 };
 
 export const volunteerApi = {
@@ -36,7 +37,11 @@ export const volunteerApi = {
 
 export const adminApi = {
   getAnalytics: () => api.get('/admin/analytics'),
-  getUsers: () => api.get('/admin/users')
+  getUsers: () => api.get('/admin/users'),
+  getPendingDonations: () => api.get('/admin/pending-donations'),
+  approveDonation: (id) => api.post(`/admin/approve-donation/${id}`),
+  rejectDonation: (id) => api.post(`/admin/reject-donation/${id}`),
+  verifyRestaurant: (id) => api.post(`/admin/verify-restaurant/${id}`)
 };
 
 export const notificationsApi = {

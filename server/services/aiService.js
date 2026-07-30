@@ -22,7 +22,7 @@ class AIService {
         
         const prompt = `
 You are an expert AI Food Redistribution Logistics System.
-Analyze the following surplus food donation and output a strict JSON object evaluating urgency, priority, impact, and NGO matching.
+Analyze the following surplus food donation and output a strict JSON object evaluating urgency, priority, impact, confidence, and NGO matching.
 
 DONATION DETAILS:
 - Title: ${donation.title}
@@ -37,6 +37,7 @@ DONATION DETAILS:
 STRICT JSON OUTPUT REQUIRED:
 {
   "priority": "High" | "Medium" | "Low",
+  "confidenceScore": number (70 to 99),
   "urgencyScore": number (1 to 100),
   "estimatedMeals": number,
   "recommendedNGO": string,
@@ -46,8 +47,9 @@ STRICT JSON OUTPUT REQUIRED:
 EVALUATION RULES:
 1. If hours until expiry < 4 or food is hot cooked meal > 20kg: Priority MUST be "High", UrgencyScore > 80.
 2. Estimated meals = quantity_kg * 3 (approx 300g per meal).
-3. Recommended NGO should match available NGOs or pick the best fit.
-4. Reason must be concise (1-2 sentences) explaining urgency and impact.
+3. Confidence score should reflect freshness data consistency (88% to 98%).
+4. Recommended NGO should match available NGOs or pick the best fit.
+5. Reason must be concise (1-2 sentences) explaining urgency and impact.
 
 Return ONLY raw JSON, no markdown formatting or extra text.
 `;
@@ -105,16 +107,20 @@ Return ONLY raw JSON, no markdown formatting or extra text.
     
     let priority = 'Medium';
     let urgencyScore = 50;
+    let confidenceScore = 92;
 
     if (hoursToExpiry <= 4 || quantity >= 25) {
       priority = 'High';
       urgencyScore = Math.min(98, Math.round(85 + (25 / Math.max(1, hoursToExpiry))));
+      confidenceScore = 96;
     } else if (hoursToExpiry > 12 && quantity < 10) {
       priority = 'Low';
       urgencyScore = Math.round(20 + hoursToExpiry);
+      confidenceScore = 88;
     } else {
       priority = 'Medium';
       urgencyScore = 60;
+      confidenceScore = 94;
     }
 
     const recommendedNGO = ngosList.length > 0 
@@ -127,6 +133,7 @@ Return ONLY raw JSON, no markdown formatting or extra text.
 
     return {
       priority,
+      confidenceScore,
       urgencyScore,
       estimatedMeals,
       recommendedNGO,

@@ -18,4 +18,11 @@ router.post(
   ngoController.acceptDonation
 );
 
+router.post(
+  '/deny-donation/:id',
+  authMiddleware,
+  roleMiddleware(['ngo', 'admin']),
+  ngoController.denyDonation
+);
+
 module.exports = router;

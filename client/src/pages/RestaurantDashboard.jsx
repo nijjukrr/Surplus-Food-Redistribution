@@ -1,15 +1,38 @@
 import React, { useState, useEffect } from 'react';
-import { donationsApi } from '../services/api';
+import { donationsApi, notificationsApi } from '../services/api';
 import { useAuth } from '../context/AuthContext';
 import { PriorityBadge, StatusBadge } from '../components/StatusBadge';
-import { Plus, Utensils, Clock, MapPin, Sparkles, RefreshCw, CheckCircle2 } from 'lucide-react';
+import PortalLayout from '../layouts/PortalLayout';
+import { 
+  Plus, 
+  Utensils, 
+  Clock, 
+  MapPin, 
+  Sparkles, 
+  RefreshCw, 
+  CheckCircle2, 
+  ShieldCheck, 
+  AlertCircle,
+  FileText,
+  User,
+  Bell,
+  XCircle,
+  CheckSquare
+} from 'lucide-react';
+import { useLocation } from 'react-router-dom';
 
 export const RestaurantDashboard = () => {
-  const { role, setRole } = useAuth();
+  const { user } = useAuth();
+  const location = useLocation();
+  
+  // Tab view from URL subpath or state
+  const currentTab = location.pathname.split('/')[2] || 'home';
+
   const [donations, setDonations] = useState([]);
   const [loading, setLoading] = useState(true);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [submitting, setSubmitting] = useState(false);
+  const [notifications, setNotifications] = useState([]);
 
   const [formData, setFormData] = useState({
     title: '',
@@ -30,14 +53,15 @@ export const RestaurantDashboard = () => {
       })
       .catch(() => {})
       .finally(() => setLoading(false));
+
+    notificationsApi.getNotifications()
+      .then((res) => setNotifications(res.data.data || []))
+      .catch(() => {});
   };
 
   useEffect(() => {
-    if (role !== 'restaurant' && role !== 'admin') {
-      setRole('restaurant');
-    }
     fetchDonations();
-  }, []);
+  }, [location.pathname]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -69,222 +93,224 @@ export const RestaurantDashboard = () => {
     }
   };
 
+  const activeDonations = donations.filter(d => d.status !== 'Completed' && d.status !== 'Delivered' && d.status !== 'Rejected');
+  const historyDonations = donations.filter(d => d.status === 'Completed' || d.status === 'Delivered' || d.status === 'Rejected');
+
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
-      
-      {/* Header Banner */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 p-8 rounded-3xl bg-slate-900 border border-slate-800 shadow-xl">
-        <div>
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-500/10 text-emerald-400 text-xs font-bold border border-emerald-500/20 mb-2">
-            <Utensils className="w-3.5 h-3.5" /> RESTAURANT DONOR PORTAL
+    <PortalLayout>
+      <div className="space-y-8">
+        
+        {/* Header Banner */}
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 p-8 rounded-3xl bg-slate-900 border border-slate-800 shadow-xl">
+          <div>
+            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-500/10 text-emerald-400 text-xs font-bold border border-emerald-500/20 mb-2">
+              <Utensils className="w-3.5 h-3.5" /> RESTAURANT DONOR PORTAL
+            </div>
+            <div className="flex items-center gap-3">
+              <h1 className="text-3xl font-extrabold text-white">{user.name}</h1>
+              <span className="px-2.5 py-0.5 rounded-full bg-emerald-500/20 text-emerald-400 text-[10px] font-bold border border-emerald-500/30 flex items-center gap-1">
+                <ShieldCheck className="w-3 h-3" /> VERIFIED DONOR
+              </span>
+            </div>
+            <p className="text-xs text-slate-400 mt-1">Manage surplus food donations and track AI freshness & delivery timelines.</p>
           </div>
-          <h1 className="text-3xl font-extrabold text-white">Royal Spice Bistro</h1>
-          <p className="text-xs text-slate-400 mt-1">Manage surplus food donations and track AI match & delivery statuses.</p>
-        </div>
 
-        <button
-          onClick={() => setIsModalOpen(true)}
-          className="px-6 py-3 rounded-2xl bg-emerald-500 hover:bg-emerald-600 text-slate-950 font-bold text-xs flex items-center gap-2 shadow-lg shadow-emerald-500/20 transition-all"
-        >
-          <Plus className="w-4 h-4 stroke-[3]" /> Add Surplus Food Donation
-        </button>
-      </div>
-
-      {/* Donation History Section */}
-      <div className="space-y-4">
-        <div className="flex items-center justify-between">
-          <h2 className="text-xl font-bold text-white flex items-center gap-2">
-            Donation History & Realtime Tracking
-          </h2>
-          <button onClick={fetchDonations} className="text-xs text-slate-400 hover:text-emerald-400 flex items-center gap-1">
-            <RefreshCw className="w-3.5 h-3.5" /> Refresh List
+          <button
+            onClick={() => setIsModalOpen(true)}
+            className="px-6 py-3 rounded-2xl bg-emerald-500 hover:bg-emerald-600 text-slate-950 font-bold text-xs flex items-center gap-2 shadow-lg shadow-emerald-500/20 transition-all"
+          >
+            <Plus className="w-4 h-4 stroke-[3]" /> Add Surplus Food Donation
           </button>
         </div>
 
-        {loading ? (
-          <div className="text-center py-12 text-slate-500 text-xs">Loading donations...</div>
-        ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {donations.map((item) => {
-              const prediction = item.ai_predictions?.[0] || item.ai_prediction || {};
-              return (
-                <div key={item.id} className="glass-card glass-card-hover rounded-2xl p-5 border border-slate-800 space-y-4 relative flex flex-col justify-between">
-                  <div className="space-y-3">
-                    
-                    {/* Top Status & Priority */}
-                    <div className="flex items-center justify-between gap-2">
-                      <StatusBadge status={item.status} />
-                      <PriorityBadge priority={prediction.priority} score={prediction.urgency_score} />
-                    </div>
+        {/* Tab Specific Views */}
+        {currentTab === 'donate' || isModalOpen ? (
+          /* Donate Food Form Section */
+          <div className="p-8 rounded-3xl bg-slate-900 border border-slate-800 space-y-6 shadow-2xl">
+            <h2 className="text-xl font-bold text-white flex items-center gap-2">
+              <Plus className="w-5 h-5 text-emerald-400" /> Submit Surplus Food Donation
+            </h2>
 
-                    {/* Image & Title */}
-                    <div className="flex items-start gap-3 pt-2">
-                      <img
-                        src={item.image_url || 'https://images.unsplash.com/photo-1555396273-367ea4eb4db5?auto=format&fit=crop&w=800&q=80'}
-                        alt={item.title}
-                        className="w-16 h-16 rounded-xl object-cover border border-slate-800 shrink-0"
-                      />
-                      <div>
-                        <h3 className="font-bold text-sm text-slate-100 line-clamp-1">{item.title}</h3>
-                        <p className="text-xs text-slate-400 capitalize">{item.food_category.replace('_', ' ')} • {item.food_type}</p>
-                        <p className="text-xs font-bold text-emerald-400 mt-1">{item.quantity_kg} kg</p>
-                      </div>
-                    </div>
-
-                    {/* AI Insights Card */}
-                    {prediction.reason && (
-                      <div className="p-3 rounded-xl bg-slate-950/70 border border-slate-800/80 text-xs space-y-1">
-                        <div className="font-bold text-indigo-300 flex items-center gap-1 text-[11px]">
-                          <Sparkles className="w-3.5 h-3.5 text-indigo-400" /> Gemini AI Insight
-                        </div>
-                        <p className="text-slate-300 text-[11px] leading-tight">{prediction.reason}</p>
-                        {prediction.estimated_meals && (
-                          <span className="text-[10px] font-bold text-emerald-400 block pt-1">
-                            Impact: ~{prediction.estimated_meals} meals served
-                          </span>
-                        )}
-                      </div>
-                    )}
-
-                    <div className="text-xs text-slate-400 flex items-center gap-1">
-                      <MapPin className="w-3.5 h-3.5 text-slate-500" /> {item.pickup_address}
-                    </div>
-                  </div>
-
-                  <div className="pt-3 border-t border-slate-800 text-[11px] text-slate-500 flex justify-between">
-                    <span>Created: {new Date(item.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
-                    <span className="font-semibold text-slate-400">{item.restaurant_name}</span>
-                  </div>
-                </div>
-              );
-            })}
-          </div>
-        )}
-      </div>
-
-      {/* Add Donation Modal */}
-      {isModalOpen && (
-        <div className="fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-md flex items-center justify-center p-4">
-          <div className="bg-slate-900 border border-slate-800 rounded-3xl p-6 sm:p-8 max-w-lg w-full space-y-6 max-h-[90vh] overflow-y-auto shadow-2xl">
-            
-            <div className="flex items-center justify-between pb-4 border-b border-slate-800">
-              <h3 className="text-lg font-bold text-white flex items-center gap-2">
-                <Utensils className="w-5 h-5 text-emerald-400" /> Add Food Donation
-              </h3>
-              <button onClick={() => setIsModalOpen(false)} className="text-slate-400 hover:text-slate-200 text-lg">✕</button>
-            </div>
-
-            <form onSubmit={handleSubmit} className="space-y-4 text-xs">
-              <div>
-                <label className="block font-semibold text-slate-300 mb-1">Food Title</label>
-                <input
-                  type="text"
-                  required
-                  placeholder="e.g. 25kg Surplus Vegetable Biryani"
-                  value={formData.title}
-                  onChange={(e) => setFormData({ ...formData, title: e.target.value })}
-                  className="w-full px-4 py-2.5 rounded-xl bg-slate-950 border border-slate-800 text-slate-100 text-xs focus:border-emerald-500 outline-none"
-                />
-              </div>
-
-              <div className="grid grid-cols-2 gap-3">
+            <form onSubmit={handleSubmit} className="space-y-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
-                  <label className="block font-semibold text-slate-300 mb-1">Quantity (kg)</label>
+                  <label className="block text-xs font-semibold text-slate-300 mb-1">Food Item Title</label>
+                  <input
+                    type="text"
+                    required
+                    placeholder="e.g. Surplus Biryani & Curry Feast"
+                    value={formData.title}
+                    onChange={(e) => setFormData({ ...formData, title: e.target.value })}
+                    className="w-full px-4 py-3 rounded-xl bg-slate-950 border border-slate-800 text-slate-200 text-xs focus:outline-none focus:border-emerald-500"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-xs font-semibold text-slate-300 mb-1">Food Weight (kg)</label>
                   <input
                     type="number"
                     required
                     min="1"
                     value={formData.quantity_kg}
-                    onChange={(e) => setFormData({ ...formData, quantity_kg: e.target.value })}
-                    className="w-full px-4 py-2.5 rounded-xl bg-slate-950 border border-slate-800 text-slate-100 text-xs focus:border-emerald-500 outline-none"
+                    onChange={(e) => setFormData({ ...formData, quantity_kg: Number(e.target.value) })}
+                    className="w-full px-4 py-3 rounded-xl bg-slate-950 border border-slate-800 text-slate-200 text-xs focus:outline-none focus:border-emerald-500"
                   />
                 </div>
-                <div>
-                  <label className="block font-semibold text-slate-300 mb-1">Expiry Hours</label>
-                  <input
-                    type="number"
-                    required
-                    min="1"
-                    value={formData.expiry_hours}
-                    onChange={(e) => setFormData({ ...formData, expiry_hours: e.target.value })}
-                    className="w-full px-4 py-2.5 rounded-xl bg-slate-950 border border-slate-800 text-slate-100 text-xs focus:border-emerald-500 outline-none"
-                  />
-                </div>
-              </div>
 
-              <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="block font-semibold text-slate-300 mb-1">Category</label>
+                  <label className="block text-xs font-semibold text-slate-300 mb-1">Food Category</label>
                   <select
                     value={formData.food_category}
                     onChange={(e) => setFormData({ ...formData, food_category: e.target.value })}
-                    className="w-full px-4 py-2.5 rounded-xl bg-slate-950 border border-slate-800 text-slate-100 text-xs focus:border-emerald-500 outline-none"
+                    className="w-full px-4 py-3 rounded-xl bg-slate-950 border border-slate-800 text-slate-200 text-xs focus:outline-none focus:border-emerald-500"
                   >
-                    <option value="cooked_meal">Cooked Meal</option>
-                    <option value="bakery">Bakery Items</option>
-                    <option value="raw_produce">Raw Produce / Fruits</option>
-                    <option value="packaged_food">Packaged Food</option>
+                    <option value="cooked_meal">Hot Cooked Meal</option>
+                    <option value="bakery">Bakery & Bread</option>
+                    <option value="raw_produce">Fresh Fruit & Produce</option>
+                    <option value="packaged_food">Packaged Goods</option>
                   </select>
                 </div>
+
                 <div>
-                  <label className="block font-semibold text-slate-300 mb-1">Food Type</label>
-                  <select
-                    value={formData.food_type}
-                    onChange={(e) => setFormData({ ...formData, food_type: e.target.value })}
-                    className="w-full px-4 py-2.5 rounded-xl bg-slate-950 border border-slate-800 text-slate-100 text-xs focus:border-emerald-500 outline-none"
-                  >
-                    <option value="veg">Vegetarian</option>
-                    <option value="non_veg">Non-Vegetarian</option>
-                    <option value="vegan">Vegan</option>
-                  </select>
+                  <label className="block text-xs font-semibold text-slate-300 mb-1">Expiry Buffer (Hours)</label>
+                  <input
+                    type="number"
+                    min="1"
+                    max="48"
+                    value={formData.expiry_hours}
+                    onChange={(e) => setFormData({ ...formData, expiry_hours: Number(e.target.value) })}
+                    className="w-full px-4 py-3 rounded-xl bg-slate-950 border border-slate-800 text-slate-200 text-xs focus:outline-none focus:border-emerald-500"
+                  />
                 </div>
               </div>
 
               <div>
-                <label className="block font-semibold text-slate-300 mb-1">Pickup Address</label>
+                <label className="block text-xs font-semibold text-slate-300 mb-1">Pickup Address</label>
                 <input
                   type="text"
                   required
                   value={formData.pickup_address}
                   onChange={(e) => setFormData({ ...formData, pickup_address: e.target.value })}
-                  className="w-full px-4 py-2.5 rounded-xl bg-slate-950 border border-slate-800 text-slate-100 text-xs focus:border-emerald-500 outline-none"
+                  className="w-full px-4 py-3 rounded-xl bg-slate-950 border border-slate-800 text-slate-200 text-xs focus:outline-none focus:border-emerald-500"
                 />
               </div>
 
               <div>
-                <label className="block font-semibold text-slate-300 mb-1">Food Image URL</label>
+                <label className="block text-xs font-semibold text-slate-300 mb-1">Image URL</label>
                 <input
                   type="url"
                   value={formData.image_url}
                   onChange={(e) => setFormData({ ...formData, image_url: e.target.value })}
-                  className="w-full px-4 py-2.5 rounded-xl bg-slate-950 border border-slate-800 text-slate-100 text-xs focus:border-emerald-500 outline-none"
+                  className="w-full px-4 py-3 rounded-xl bg-slate-950 border border-slate-800 text-slate-200 text-xs focus:outline-none focus:border-emerald-500"
                 />
               </div>
 
-              <div className="pt-4 flex gap-3">
+              <div className="flex justify-end gap-3 pt-4">
                 <button
                   type="button"
                   onClick={() => setIsModalOpen(false)}
-                  className="w-1/2 py-3 rounded-xl bg-slate-800 text-slate-300 font-semibold text-xs"
+                  className="px-5 py-2.5 rounded-xl bg-slate-800 text-slate-300 font-bold text-xs"
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
                   disabled={submitting}
-                  className="w-1/2 py-3 rounded-xl bg-emerald-500 hover:bg-emerald-600 text-slate-950 font-bold text-xs flex items-center justify-center gap-1 shadow-lg shadow-emerald-500/20"
+                  className="px-6 py-2.5 rounded-xl bg-emerald-500 hover:bg-emerald-600 text-slate-950 font-bold text-xs flex items-center gap-2 shadow-lg shadow-emerald-500/20"
                 >
-                  {submitting ? 'Analyzing with AI...' : 'Submit & Analyze with Gemini'}
+                  <Sparkles className="w-4 h-4" /> {submitting ? 'Analyzing AI...' : 'Submit & Analyze AI'}
                 </button>
               </div>
-
             </form>
-
           </div>
-        </div>
-      )}
+        ) : null}
 
-    </div>
+        {/* Active & History Donations Feed */}
+        <div className="space-y-4">
+          <div className="flex items-center justify-between">
+            <h2 className="text-xl font-bold text-white flex items-center gap-2">
+              <Clock className="w-5 h-5 text-emerald-400" /> Active Donations & Timeline Tracking
+            </h2>
+            <button onClick={fetchDonations} className="text-xs text-slate-400 hover:text-emerald-400 flex items-center gap-1">
+              <RefreshCw className="w-3.5 h-3.5" /> Refresh List
+            </button>
+          </div>
+
+          {loading ? (
+            <div className="text-center py-12 text-slate-500 text-xs">Loading donations...</div>
+          ) : donations.length === 0 ? (
+            <div className="text-center py-12 glass-card rounded-2xl border border-slate-800 text-slate-400 text-xs">
+              No donations created yet. Click "Add Surplus Food Donation" above to begin.
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              {donations.map((item) => {
+                const prediction = item.ai_predictions?.[0] || item.ai_prediction || {};
+                const confidence = prediction.confidenceScore || 95;
+
+                return (
+                  <div key={item.id} className="glass-card rounded-2xl p-6 border border-slate-800 space-y-4 flex flex-col justify-between">
+                    
+                    <div className="space-y-3">
+                      <div className="flex items-center justify-between gap-2">
+                        <div className="flex items-center gap-2">
+                          <PriorityBadge priority={prediction.priority} score={prediction.urgency_score} />
+                          <span className="px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-400 text-[10px] font-bold border border-emerald-500/20">
+                            {confidence}% AI Confidence
+                          </span>
+                        </div>
+                        <StatusBadge status={item.status} />
+                      </div>
+
+                      <div className="flex items-start gap-3">
+                        <img
+                          src={item.image_url || 'https://images.unsplash.com/photo-1555396273-367ea4eb4db5?auto=format&fit=crop&w=800&q=80'}
+                          alt={item.title}
+                          className="w-16 h-16 rounded-xl object-cover border border-slate-800 shrink-0"
+                        />
+                        <div>
+                          <h3 className="font-bold text-sm text-slate-100">{item.title}</h3>
+                          <p className="text-xs text-slate-400">{item.quantity_kg} kg Food Package</p>
+                          {prediction.recommendedNGO && (
+                            <p className="text-xs text-emerald-400 font-medium mt-1">
+                              Matched NGO: {prediction.recommendedNGO}
+                            </p>
+                          )}
+                        </div>
+                      </div>
+
+                      {/* Multi-Step Timeline Progress */}
+                      <div className="p-4 rounded-xl bg-slate-950 border border-slate-800/80 space-y-2">
+                        <p className="text-[10px] font-bold uppercase tracking-wider text-slate-500">Donation Lifecycle Timeline</p>
+                        <div className="flex items-center justify-between text-[11px] font-semibold text-slate-300">
+                          <span className={item.status === 'Pending Admin Review' ? 'text-amber-400 animate-pulse' : 'text-emerald-400'}>
+                            1. Submitted
+                          </span>
+                          <span>→</span>
+                          <span className={item.status === 'Approved' ? 'text-emerald-400 font-bold' : 'text-slate-500'}>
+                            2. Sent to NGOs
+                          </span>
+                          <span>→</span>
+                          <span className={item.status === 'NGO Accepted' || item.status === 'Volunteer Assigned' ? 'text-emerald-400 font-bold' : 'text-slate-500'}>
+                            3. NGO Accepted
+                          </span>
+                          <span>→</span>
+                          <span className={item.status === 'Delivered' || item.status === 'Completed' ? 'text-emerald-400 font-bold' : 'text-slate-500'}>
+                            4. Delivered
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+
+                  </div>
+                );
+              })}
+            </div>
+          )}
+        </div>
+
+      </div>
+    </PortalLayout>
   );
 };
 

@@ -20,18 +20,22 @@ class NgoService {
     };
 
     if (isConfigured()) {
-      const { data, error } = await supabase
-        .from('pickup_requests')
-        .insert({
-          donation_id: donationId,
-          ngo_id: ngoId,
-          ngo_name: ngoName,
-          status: 'Accepted'
-        })
-        .select()
-        .single();
+      try {
+        const { data, error } = await supabase
+          .from('pickup_requests')
+          .insert({
+            donation_id: donationId,
+            ngo_id: ngoId,
+            ngo_name: ngoName,
+            status: 'Accepted'
+          })
+          .select()
+          .single();
 
-      if (!error && data) pickupRequest = data;
+        if (!error && data) pickupRequest = data;
+      } catch (err) {
+        console.warn('[NGO Accept DB Warning]:', err.message);
+      }
     }
 
     // Update donation status
@@ -40,15 +44,33 @@ class NgoService {
     // Notify Restaurant and Volunteers
     await notificationService.createNotification({
       title: 'Donation Accepted by NGO!',
-      message: `${ngoName} has accepted donation "${updatedDonation.title || 'Food Donation'}". Volunteer requested!`,
+      message: `${ngoName} has accepted donation "${updatedDonation.title || 'Food Donation'}". Scheduled pickup requested!`,
       type: 'status_update'
     });
 
     return { pickupRequest, donation: updatedDonation };
   }
 
+  /**
+   * NGO Denies/Declines a donation
+   */
+  async denyDonation(donationId, ngoUser) {
+    const ngoName = ngoUser?.profile?.organization_name || ngoUser?.organization_name || 'Care & Share Foundation';
+    const updatedDonation = await donationService.updateStatus(donationId, 'NGO Declined', ngoUser);
+
+    await notificationService.createNotification({
+      title: 'Donation Declined by NGO',
+      message: `${ngoName} declined donation "${updatedDonation.title || 'Food Donation'}". Available for other NGOs.`,
+      type: 'status_update'
+    });
+
+    return updatedDonation;
+  }
+
   async getNearbyDonations() {
-    return await donationService.getAllDonations();
+    const all = await donationService.getAllDonations();
+    // Exclude Pending Admin Review and Rejected items from general NGO feed
+    return all.filter(d => d.status !== 'Pending Admin Review' && d.status !== 'Rejected' && d.status !== 'NGO Declined');
   }
 }
 

@@ -5,7 +5,16 @@ class NgoController {
   async acceptDonation(req, res, next) {
     try {
       const result = await ngoService.acceptDonation(req.params.id, req.user);
-      res.json(successResponse(result, 'Donation claimed by NGO successfully'));
+      res.json(successResponse(result, 'Donation accepted by NGO successfully'));
+    } catch (err) {
+      next(err);
+    }
+  }
+
+  async denyDonation(req, res, next) {
+    try {
+      const result = await ngoService.denyDonation(req.params.id, req.user);
+      res.json(successResponse(result, 'Donation declined by NGO'));
     } catch (err) {
       next(err);
     }

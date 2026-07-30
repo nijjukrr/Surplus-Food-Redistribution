@@ -10,159 +10,190 @@ import {
   TrendingUp, 
   MapPin, 
   Award,
-  Clock
+  Clock,
+  CheckCircle2,
+  Building2,
+  HeartHandshake
 } from 'lucide-react';
-import InteractiveMap from '../components/InteractiveMap';
+import Navbar from '../components/Navbar';
 
 export const LandingPage = () => {
   return (
-    <div className="space-y-24 pb-20">
-      
-      {/* Hero Section */}
-      <section className="relative pt-12 pb-16 overflow-hidden">
-        <div className="absolute inset-0 bg-[radial-gradient(ellipse_80%_80%_at_50%_-20%,rgba(16,185,129,0.15),rgba(255,255,255,0))] pointer-events-none"></div>
+    <div className="bg-slate-950 min-h-screen text-slate-100 font-sans selection:bg-emerald-500 selection:text-slate-950">
+      <Navbar />
+
+      <div className="space-y-24 pb-20">
         
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10 text-center">
+        {/* Hero Section */}
+        <section className="relative pt-16 pb-20 overflow-hidden">
+          <div className="absolute inset-0 bg-[radial-gradient(ellipse_80%_80%_at_50%_-20%,rgba(16,185,129,0.18),rgba(255,255,255,0))] pointer-events-none"></div>
           
-          <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-xs font-semibold mb-8 animate-in fade-in slide-in-from-top-4">
-            <Sparkles className="w-4 h-4 text-emerald-400" />
-            <span>Next-Gen Smart Food Redistribution Platform</span>
-          </div>
-
-          <h1 className="text-4xl sm:text-6xl lg:text-7xl font-extrabold tracking-tight text-white leading-tight">
-            Bridging Surplus Food to <br className="hidden sm:inline" />
-            <span className="bg-gradient-to-r from-emerald-400 via-teal-300 to-amber-300 bg-clip-text text-transparent">
-              Hungry Communities with AI
-            </span>
-          </h1>
-
-          <p className="mt-6 text-lg sm:text-xl text-slate-300 max-w-3xl mx-auto font-light leading-relaxed">
-            FoodBridge AI uses Google Gemini AI & Supabase to analyze food freshness, calculate priority scores, and match surplus donations from restaurants with nearby NGOs and volunteer couriers in real-time.
-          </p>
-
-          {/* Call to Action Buttons */}
-          <div className="mt-10 flex flex-wrap justify-center gap-4">
-            <Link
-              to="/restaurant"
-              className="px-8 py-4 rounded-2xl bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-600 hover:to-teal-700 text-slate-950 font-bold text-sm shadow-xl shadow-emerald-500/25 flex items-center gap-2 hover:scale-105 transition-all"
-            >
-              <Utensils className="w-4 h-4" />
-              Donate Surplus Food
-              <ArrowRight className="w-4 h-4" />
-            </Link>
-
-            <Link
-              to="/ngo"
-              className="px-8 py-4 rounded-2xl bg-slate-900 hover:bg-slate-800 text-slate-200 font-semibold text-sm border border-slate-700/80 flex items-center gap-2 hover:scale-105 transition-all"
-            >
-              <Heart className="w-4 h-4 text-rose-400" />
-              Claim Donations as NGO
-            </Link>
-          </div>
-
-          {/* Key Impact Stats */}
-          <div className="mt-16 grid grid-cols-2 md:grid-cols-4 gap-4 max-w-4xl mx-auto">
-            {[
-              { label: 'Food Rescued', value: '1,250 kg+', color: 'text-emerald-400' },
-              { label: 'Meals Served', value: '3,750+', color: 'text-teal-300' },
-              { label: 'Active NGOs', value: '42 Hubs', color: 'text-amber-400' },
-              { label: 'AI Match Accuracy', value: '96.4%', color: 'text-indigo-400' },
-            ].map((stat, idx) => (
-              <div key={idx} className="p-5 rounded-2xl bg-slate-900/60 border border-slate-800/80 backdrop-blur-md">
-                <p className={`text-2xl sm:text-3xl font-extrabold ${stat.color}`}>{stat.value}</p>
-                <p className="text-xs text-slate-400 mt-1 font-medium">{stat.label}</p>
-              </div>
-            ))}
-          </div>
-
-        </div>
-      </section>
-
-      {/* AI Intelligence Showcase */}
-      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="p-8 sm:p-12 rounded-3xl bg-gradient-to-br from-slate-900 via-slate-900 to-emerald-950/40 border border-emerald-500/20 shadow-2xl relative overflow-hidden">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10 text-center space-y-6">
             
-            <div className="space-y-6">
-              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-500/10 text-emerald-400 text-xs font-bold border border-emerald-500/20">
-                <Sparkles className="w-3.5 h-3.5" /> GEMINI AI REDISTRIBUTION ENGINE
-              </div>
-              <h2 className="text-3xl sm:text-4xl font-bold text-white leading-tight">
-                Predictive Prioritization & Smart NGO Matching
-              </h2>
-              <p className="text-slate-300 text-sm leading-relaxed">
-                When a restaurant submits surplus food, Gemini AI processes quantity, category, cooked timestamp, and shelf-life. It calculates an exact Urgency Score, estimates nutritious meal count, and matches with the best nearby NGO.
-              </p>
+            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-xs font-semibold mb-2">
+              <Sparkles className="w-4 h-4 text-emerald-400" />
+              <span>Next-Gen Smart Food Redistribution Platform</span>
+            </div>
 
-              <div className="space-y-3 pt-2">
-                {[
-                  { title: 'Expiry Urgency Score', desc: 'Predicts high-risk food expiring under 4 hours.' },
-                  { title: 'Nutritional Meal Estimation', desc: 'Converts bulk kg measurements into actual meal units.' },
-                  { title: 'Automated NGO Recommendation', desc: 'Matches capacity and proximity to minimize delivery lag.' }
-                ].map((feat, i) => (
-                  <div key={i} className="flex items-start gap-3 p-3 rounded-xl bg-slate-950/50 border border-slate-800">
-                    <div className="w-6 h-6 rounded-full bg-emerald-500/20 text-emerald-400 flex items-center justify-center shrink-0 mt-0.5 font-bold text-xs">
-                      ✓
+            <h1 className="text-4xl sm:text-6xl lg:text-7xl font-extrabold tracking-tight text-white leading-tight">
+              Bridging Surplus Food to <br className="hidden sm:inline" />
+              <span className="bg-gradient-to-r from-emerald-400 via-teal-300 to-amber-300 bg-clip-text text-transparent">
+                Hungry Communities with AI
+              </span>
+            </h1>
+
+            <p className="text-lg sm:text-xl text-slate-300 max-w-3xl mx-auto font-light leading-relaxed">
+              FoodBridge AI uses Google Gemini AI & Supabase to analyze food freshness, calculate priority scores, and route surplus donations from restaurants directly to nearby NGOs and volunteer couriers in real-time.
+            </p>
+
+            {/* Quick Portal Action Buttons */}
+            <div className="pt-4 flex flex-wrap justify-center gap-4">
+              <Link
+                to="/login?role=restaurant"
+                className="px-8 py-4 rounded-2xl bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-600 hover:to-teal-700 text-slate-950 font-bold text-sm shadow-xl shadow-emerald-500/25 flex items-center gap-2 hover:scale-105 transition-all"
+              >
+                <Utensils className="w-4 h-4" />
+                Donate Surplus Food
+                <ArrowRight className="w-4 h-4" />
+              </Link>
+
+              <Link
+                to="/login?role=ngo"
+                className="px-8 py-4 rounded-2xl bg-slate-900 hover:bg-slate-800 text-slate-200 font-semibold text-sm border border-slate-700/80 flex items-center gap-2 hover:scale-105 transition-all"
+              >
+                <Heart className="w-4 h-4 text-rose-400" />
+                Claim Donations as NGO
+              </Link>
+            </div>
+
+            {/* Key Impact Stats */}
+            <div id="stats" className="pt-12 grid grid-cols-2 md:grid-cols-4 gap-4 max-w-4xl mx-auto">
+              {[
+                { label: 'Food Rescued', value: '1,250 kg+', color: 'text-emerald-400' },
+                { label: 'Meals Served', value: '3,750+', color: 'text-teal-300' },
+                { label: 'Active NGOs', value: '42 Hubs', color: 'text-amber-400' },
+                { label: 'AI Confidence Score', value: '96.4%', color: 'text-indigo-400' },
+              ].map((stat, idx) => (
+                <div key={idx} className="p-5 rounded-2xl bg-slate-900/60 border border-slate-800/80 backdrop-blur-md">
+                  <p className={`text-2xl sm:text-3xl font-extrabold ${stat.color}`}>{stat.value}</p>
+                  <p className="text-xs text-slate-400 mt-1 font-medium">{stat.label}</p>
+                </div>
+              ))}
+            </div>
+
+          </div>
+        </section>
+
+        {/* How FoodBridge Works Visual Diagram Section */}
+        <section id="how-it-works" className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-12">
+          <div className="text-center space-y-3">
+            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-500/10 text-emerald-400 text-xs font-bold border border-emerald-500/20">
+              <Clock className="w-3.5 h-3.5" /> END-TO-END LOGISTICS WORKFLOW
+            </div>
+            <h2 className="text-3xl sm:text-4xl font-extrabold text-white">How FoodBridge AI Works</h2>
+            <p className="text-slate-400 text-sm max-w-xl mx-auto">
+              From surplus preparation to community distribution, AI handles real-time freshness and logistics routing.
+            </p>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-5 gap-4 relative">
+            {[
+              { step: '1', title: 'Upload Surplus Food', desc: 'Restaurant details food quantity, category, and expiry.', icon: Utensils, color: 'border-emerald-500/40 text-emerald-400' },
+              { step: '2', title: 'AI Freshness & Urgency', desc: 'Gemini AI evaluates priority score & confidence %.', icon: Sparkles, color: 'border-teal-500/40 text-teal-400' },
+              { step: '3', title: 'Smart NGO Recommendation', desc: 'Verified donations stream directly to nearby NGOs.', icon: HeartHandshake, color: 'border-rose-500/40 text-rose-400' },
+              { step: '4', title: 'Volunteer Courier Pickup', desc: 'Courier claims mission & follows interactive route.', icon: Truck, color: 'border-blue-500/40 text-blue-400' },
+              { step: '5', title: 'Community Distribution', desc: 'Food is delivered safely to beneficiaries.', icon: CheckCircle2, color: 'border-amber-500/40 text-amber-400' },
+            ].map((item, idx) => {
+              const StepIcon = item.icon;
+              return (
+                <div key={idx} className={`p-6 rounded-2xl bg-slate-900/80 border ${item.color} flex flex-col justify-between relative group hover:scale-[1.02] transition-transform`}>
+                  <div className="space-y-3">
+                    <div className="w-8 h-8 rounded-full bg-slate-950 border border-slate-800 flex items-center justify-center text-xs font-bold text-slate-300">
+                      {item.step}
                     </div>
-                    <div>
-                      <h4 className="text-xs font-bold text-slate-200">{feat.title}</h4>
-                      <p className="text-xs text-slate-400">{feat.desc}</p>
-                    </div>
+                    <StepIcon className={`w-6 h-6 ${item.color.split(' ')[1]}`} />
+                    <h3 className="font-bold text-sm text-white">{item.title}</h3>
+                    <p className="text-xs text-slate-400 leading-relaxed">{item.desc}</p>
                   </div>
-                ))}
+                </div>
+              );
+            })}
+          </div>
+        </section>
+
+        {/* Choose Your Portal Section */}
+        <section id="portals" className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-8">
+          <div className="text-center space-y-3">
+            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-500/10 text-emerald-400 text-xs font-bold border border-emerald-500/20">
+              <Building2 className="w-3.5 h-3.5" /> DEDICATED ROLE PORTALS
+            </div>
+            <h2 className="text-3xl sm:text-4xl font-extrabold text-white">Choose Your Portal Gateway</h2>
+            <p className="text-slate-400 text-sm max-w-xl mx-auto">
+              Select your persona role to access your dedicated SaaS dashboard environment.
+            </p>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+            {[
+              { role: 'restaurant', title: 'Restaurant Portal', desc: 'Donate surplus food, view AI freshness analysis, & track delivery timelines.', icon: Building2, color: 'from-emerald-500/20 to-teal-500/10 border-emerald-500/30 text-emerald-400' },
+              { role: 'ngo', title: 'NGO / Charity Hub', desc: 'Browse AI-recommended food, accept or decline requests, & schedule pickup times.', icon: HeartHandshake, color: 'from-rose-500/20 to-pink-500/10 border-rose-500/30 text-rose-400' },
+              { role: 'volunteer', title: 'Volunteer Courier', desc: 'Claim delivery missions, navigate interactive maps, & confirm pickups.', icon: Truck, color: 'from-blue-500/20 to-indigo-500/10 border-blue-500/30 text-blue-400' },
+              { role: 'admin', title: 'Admin Control Center', desc: 'Verify restaurants, review flagged items, & monitor platform analytics.', icon: ShieldCheck, color: 'from-purple-500/20 to-indigo-500/10 border-purple-500/30 text-purple-400' },
+            ].map((p, idx) => {
+              const PortalIcon = p.icon;
+              return (
+                <Link
+                  key={idx}
+                  to={`/login?role=${p.role}`}
+                  className={`p-6 rounded-3xl bg-gradient-to-br ${p.color} border space-y-4 flex flex-col justify-between group hover:scale-[1.03] transition-all shadow-xl`}
+                >
+                  <div className="space-y-3">
+                    <div className="w-12 h-12 rounded-2xl bg-slate-950/80 border border-slate-800 flex items-center justify-center">
+                      <PortalIcon className="w-6 h-6" />
+                    </div>
+                    <h3 className="font-extrabold text-base text-white">{p.title}</h3>
+                    <p className="text-xs text-slate-300 leading-relaxed">{p.desc}</p>
+                  </div>
+
+                  <div className="pt-2 flex items-center justify-between text-xs font-bold">
+                    <span>Enter Portal</span>
+                    <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+                  </div>
+                </Link>
+              );
+            })}
+          </div>
+        </section>
+
+        {/* UN SDG Goal #2 (Zero Hunger) Showcase */}
+        <section id="sdg" className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="p-8 sm:p-12 rounded-3xl bg-gradient-to-br from-amber-950/30 via-slate-900 to-emerald-950/30 border border-amber-500/20 space-y-6 text-center md:text-left md:flex items-center justify-between gap-8">
+            <div className="space-y-3 max-w-2xl">
+              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-amber-500/10 text-amber-400 text-xs font-bold border border-amber-500/20">
+                <Award className="w-3.5 h-3.5" /> UN SUSTAINABLE DEVELOPMENT GOAL #2
               </div>
+              <h2 className="text-3xl font-extrabold text-white">Targeting Zero Hunger & Zero Waste</h2>
+              <p className="text-xs text-slate-300 leading-relaxed">
+                Over 1/3 of global food is wasted while millions go hungry. FoodBridge AI transforms commercial surplus into immediate nutritious community meals through intelligent AI logistics.
+              </p>
             </div>
 
-            {/* AI Mock Card Preview */}
-            <div className="p-6 rounded-2xl bg-slate-950 border border-slate-800 shadow-2xl space-y-4">
-              <div className="flex items-center justify-between pb-3 border-b border-slate-800">
-                <span className="text-xs font-bold text-slate-400">Gemini AI Output Live Preview</span>
-                <span className="px-2.5 py-1 rounded-full text-[10px] font-bold bg-rose-500/20 text-rose-400 border border-rose-500/30">
-                  HIGH PRIORITY (92%)
-                </span>
-              </div>
-              <div className="space-y-2 text-xs">
-                <div className="flex justify-between text-slate-300">
-                  <span className="text-slate-500">Estimated Meals:</span>
-                  <span className="font-bold text-emerald-400">75 Meals (~25 kg)</span>
-                </div>
-                <div className="flex justify-between text-slate-300">
-                  <span className="text-slate-500">Best NGO Match:</span>
-                  <span className="font-semibold text-slate-200">Care & Share Foundation (0.8 km)</span>
-                </div>
-                <div className="flex justify-between text-slate-300">
-                  <span className="text-slate-500">Time Buffer:</span>
-                  <span className="font-semibold text-amber-400 flex items-center gap-1">
-                    <Clock className="w-3 h-3" /> 2.5 hours remaining
-                  </span>
-                </div>
-                <div className="mt-3 p-3 rounded-xl bg-slate-900 border border-slate-800 text-slate-300 text-[11px] leading-snug italic">
-                  "Urgent: Cooked Biryani & Curry expires in 2.5 hrs. High volume ready for immediate feeding drive."
-                </div>
+            <div className="shrink-0 pt-4 md:pt-0">
+              <div className="p-6 rounded-2xl bg-amber-500 text-slate-950 font-black text-2xl text-center shadow-xl shadow-amber-500/20">
+                SDG GOAL #2 <br />
+                <span className="text-xs font-bold tracking-widest text-slate-900 uppercase">ZERO HUNGER</span>
               </div>
             </div>
-
           </div>
-        </div>
-      </section>
+        </section>
 
-      {/* Live Map Preview Section */}
-      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-6">
-        <div className="flex flex-col md:flex-row md:items-end justify-between gap-4">
-          <div>
-            <h2 className="text-2xl font-bold text-white flex items-center gap-2">
-              <MapPin className="w-5 h-5 text-emerald-400" /> Real-time Redistribution Map
-            </h2>
-            <p className="text-xs text-slate-400 mt-1">Live tracking of food donation origins, NGO receiving hubs, and volunteer courier routes.</p>
-          </div>
-          <Link to="/volunteer" className="text-xs text-emerald-400 hover:text-emerald-300 font-semibold flex items-center gap-1">
-            View Active Delivery Routes <ArrowRight className="w-3.5 h-3.5" />
-          </Link>
-        </div>
+      </div>
 
-        <InteractiveMap zoom={13} activeRoute={true} />
-      </section>
-
+      {/* Footer */}
+      <footer className="border-t border-slate-800/80 bg-slate-950 py-8 text-center text-xs text-slate-500 space-y-2">
+        <p>FoodBridge AI — Smart Surplus Food Redistribution Platform</p>
+        <p className="text-[10px] text-slate-600">Built with React, Vite, Node.js, Supabase & Google Gemini AI</p>
+      </footer>
     </div>
   );
 };

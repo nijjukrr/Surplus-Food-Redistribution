@@ -85,13 +85,38 @@ class DonationService {
     // Trigger AI Prediction asynchronously
     const aiPrediction = await aiService.evaluateDonation(createdDonation);
     createdDonation.ai_prediction = aiPrediction;
-    createdDonation.status = 'AI Analysed';
+    createdDonation.ai_predictions = [aiPrediction];
+
+    // Check if restaurant is verified (default verified for demo restaurant)
+    const isRestaurantVerified = user?.is_verified ?? true;
+    const isHighConfidence = (aiPrediction.confidenceScore || 90) >= 80;
+
+    // Smart AI Approval Routing Logic
+    let initialStatus = 'Pending Admin Review';
+    if (isRestaurantVerified && isHighConfidence) {
+      initialStatus = 'Approved';
+    }
+
+    createdDonation.status = initialStatus;
+
+    if (isConfigured() && createdDonation.id) {
+      try {
+        await supabase
+          .from('food_donations')
+          .update({ status: initialStatus })
+          .eq('id', createdDonation.id);
+      } catch (err) {
+        console.warn('[Donation Status Update Warning]:', err.message);
+      }
+    }
 
     // Send notification
     await notificationService.createNotification({
       userId: user?.id,
-      title: 'New Donation Created',
-      message: `Donation "${title}" analyzed by AI as ${aiPrediction.priority} Priority (${aiPrediction.estimatedMeals} meals).`,
+      title: initialStatus === 'Approved' ? 'Donation Auto-Approved by AI' : 'Donation Under Admin Review',
+      message: initialStatus === 'Approved'
+        ? `Donation "${title}" verified by AI (${aiPrediction.confidenceScore || 95}% confidence) & forwarded directly to NGOs!`
+        : `Donation "${title}" placed in Admin Review queue for safety verification.`,
       type: 'ai_match'
     });
 

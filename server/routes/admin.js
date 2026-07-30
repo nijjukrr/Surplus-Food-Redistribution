@@ -18,4 +18,32 @@ router.get(
   adminController.getUsers
 );
 
+router.get(
+  '/pending-donations',
+  authMiddleware,
+  roleMiddleware(['admin']),
+  adminController.getPendingDonations
+);
+
+router.post(
+  '/approve-donation/:id',
+  authMiddleware,
+  roleMiddleware(['admin']),
+  adminController.approveDonation
+);
+
+router.post(
+  '/reject-donation/:id',
+  authMiddleware,
+  roleMiddleware(['admin']),
+  adminController.rejectDonation
+);
+
+router.post(
+  '/verify-restaurant/:id',
+  authMiddleware,
+  roleMiddleware(['admin']),
+  adminController.verifyRestaurant
+);
+
 module.exports = router;

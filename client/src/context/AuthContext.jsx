@@ -4,11 +4,24 @@ const AuthContext = createContext();
 
 export const AuthProvider = ({ children }) => {
   const [role, setRoleState] = useState(localStorage.getItem('foodbridge_role') || 'restaurant');
-  const [user, setUser] = useState({
-    id: localStorage.getItem('foodbridge_user_id') || '11111111-1111-1111-1111-111111111111',
-    name: 'Royal Spice Bistro',
-    email: 'restaurant@foodbridge.ai',
-    role: localStorage.getItem('foodbridge_role') || 'restaurant'
+  const [isAuthenticated, setIsAuthenticated] = useState(true);
+  
+  const [user, setUser] = useState(() => {
+    const savedRole = localStorage.getItem('foodbridge_role') || 'restaurant';
+    const savedId = localStorage.getItem('foodbridge_user_id') || '11111111-1111-1111-1111-111111111111';
+    
+    let name = 'Royal Spice Bistro';
+    if (savedRole === 'ngo') name = 'Care & Share Foundation';
+    if (savedRole === 'volunteer') name = 'Alex Rivera';
+    if (savedRole === 'admin') name = 'System Administrator';
+
+    return {
+      id: savedId,
+      name,
+      email: `${savedRole}@foodbridge.ai`,
+      role: savedRole,
+      is_verified: true
+    };
   });
 
   const setRole = (newRole) => {
@@ -30,11 +43,22 @@ export const AuthProvider = ({ children }) => {
     }
 
     localStorage.setItem('foodbridge_user_id', id);
-    setUser({ id, name, email: `${newRole}@foodbridge.ai`, role: newRole });
+    setUser({ id, name, email: `${newRole}@foodbridge.ai`, role: newRole, is_verified: true });
+    setIsAuthenticated(true);
+  };
+
+  const login = (email, password, targetRole) => {
+    setRole(targetRole || 'restaurant');
+    setIsAuthenticated(true);
+    return true;
+  };
+
+  const logout = () => {
+    setIsAuthenticated(false);
   };
 
   return (
-    <AuthContext.Provider value={{ user, role, setRole }}>
+    <AuthContext.Provider value={{ user, role, isAuthenticated, setRole, login, logout }}>
       {children}
     </AuthContext.Provider>
   );
