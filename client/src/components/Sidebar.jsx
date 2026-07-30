@@ -9,16 +9,10 @@ import {
   ShieldCheck,
   PlusCircle,
   Clock,
-  Sparkles,
-  Bell,
-  User,
   LogOut,
   BarChart3,
   CheckSquare,
   MapPin,
-  Settings,
-  FileSpreadsheet,
-  Users,
   CheckCircle2
 } from 'lucide-react';
 
@@ -45,9 +39,6 @@ export const Sidebar = () => {
             { path: '/restaurant/donate', label: 'Donate Surplus Food', icon: PlusCircle },
             { path: '/restaurant/active', label: 'Active Donations', icon: Clock },
             { path: '/restaurant/history', label: 'Donation History', icon: CheckSquare },
-            { path: '/restaurant/ai-analysis', label: 'AI Intelligence', icon: Sparkles },
-            { path: '/restaurant/notifications', label: 'Notifications', icon: Bell },
-            { path: '/restaurant/profile', label: 'Restaurant Profile', icon: User },
           ]
         };
       case 'ngo':
@@ -59,11 +50,9 @@ export const Sidebar = () => {
           badgeBg: 'bg-rose-500/10 text-rose-400 border-rose-500/20',
           links: [
             { path: '/ngo', label: 'Dashboard Home', icon: HeartHandshake },
-            { path: '/ngo/available', label: 'Available Donations', icon: Sparkles },
+            { path: '/ngo/available', label: 'Available Donations', icon: Clock },
             { path: '/ngo/accepted', label: 'Accepted Donations', icon: CheckCircle2 },
             { path: '/ngo/history', label: 'Distribution History', icon: CheckSquare },
-            { path: '/ngo/notifications', label: 'Notifications', icon: Bell },
-            { path: '/ngo/profile', label: 'NGO Profile', icon: User },
           ]
         };
       case 'volunteer':
@@ -78,8 +67,6 @@ export const Sidebar = () => {
             { path: '/volunteer/deliveries', label: 'Assigned Deliveries', icon: CheckSquare },
             { path: '/volunteer/navigation', label: 'Route Navigation', icon: MapPin },
             { path: '/volunteer/history', label: 'Delivery History', icon: Clock },
-            { path: '/volunteer/notifications', label: 'Notifications', icon: Bell },
-            { path: '/volunteer/profile', label: 'Volunteer Profile', icon: User },
           ]
         };
       case 'admin':
@@ -97,8 +84,6 @@ export const Sidebar = () => {
             { path: '/admin/ngos', label: 'NGO Directory', icon: HeartHandshake },
             { path: '/admin/volunteers', label: 'Volunteer Roster', icon: Truck },
             { path: '/admin/analytics', label: 'Advanced Analytics', icon: BarChart3 },
-            { path: '/admin/reports', label: 'System Reports', icon: FileSpreadsheet },
-            { path: '/admin/settings', label: 'System Settings', icon: Settings },
           ]
         };
     }
