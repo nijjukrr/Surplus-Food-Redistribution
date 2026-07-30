@@ -211,13 +211,20 @@ export const NgoDashboard = () => {
                         </div>
                       )}
 
-                      {/* Driver Assigned Card Badge */}
+                      {/* Driver Assigned Card Badge with Driver Photo */}
                       {isAssigned && (
-                        <div className="p-3.5 rounded-xl bg-slate-950 border border-blue-500/30 text-xs space-y-1">
-                          <p className="text-[10px] font-bold uppercase text-blue-400">Assigned Driver Courier</p>
-                          <p className="text-slate-200 font-bold">{item.assigned_driver?.name || 'Alex Rivera'}</p>
-                          <p className="text-[11px] text-slate-400">Bike No: <strong className="text-emerald-400">{item.assigned_driver?.bike || 'KA-01-EA-1234'}</strong> • Phone: {item.assigned_driver?.phone || '+91 98765 43210'}</p>
-                          <p className="text-[10px] text-slate-500">Aadhar: {item.assigned_driver?.aadhar || '1234-5678-9012'}</p>
+                        <div className="p-3.5 rounded-xl bg-slate-950 border border-blue-500/30 text-xs flex items-center gap-3">
+                          <img
+                            src={item.assigned_driver?.photo_url || '/driver_photo.png'}
+                            alt={item.assigned_driver?.name || 'Alex Rivera'}
+                            className="w-12 h-12 rounded-xl object-cover border border-blue-500/40 shrink-0"
+                          />
+                          <div className="space-y-0.5 min-w-0">
+                            <p className="text-[10px] font-bold uppercase text-blue-400">Assigned Driver Courier</p>
+                            <p className="text-slate-200 font-bold truncate">{item.assigned_driver?.name || 'Alex Rivera'}</p>
+                            <p className="text-[11px] text-slate-400 truncate">Bike No: <strong className="text-emerald-400">{item.assigned_driver?.bike || 'KA-01-EA-1234'}</strong> • Phone: {item.assigned_driver?.phone || '+91 98765 43210'}</p>
+                            <p className="text-[10px] text-slate-500 truncate">Aadhar: {item.assigned_driver?.aadhar || '1234-5678-9012'}</p>
+                          </div>
                         </div>
                       )}
                     </div>
