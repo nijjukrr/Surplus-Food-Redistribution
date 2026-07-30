@@ -3,16 +3,31 @@ import { donationsApi, notificationsApi } from '../services/api';
 import { PriorityBadge, StatusBadge } from '../components/StatusBadge';
 import PortalLayout from '../layouts/PortalLayout';
 import { useAuth } from '../context/AuthContext';
-import { Utensils, Plus, Sparkles, ShieldCheck, Clock, Brain } from 'lucide-react';
+import { Utensils, Plus, Sparkles, ShieldCheck, Clock } from 'lucide-react';
 import { useLocation } from 'react-router-dom';
+
+const getStoredDonations = () => {
+  try {
+    const saved = localStorage.getItem('foodbridge_custom_donations');
+    return saved ? JSON.parse(saved) : [];
+  } catch (e) {
+    return [];
+  }
+};
+
+const saveCustomDonation = (donation) => {
+  const existing = getStoredDonations();
+  const updated = [donation, ...existing.filter(d => d.id !== donation.id)];
+  localStorage.setItem('foodbridge_custom_donations', JSON.stringify(updated));
+};
 
 export const RestaurantDashboard = () => {
   const { user } = useAuth();
   const location = useLocation();
   const currentTab = location.pathname.split('/')[2] || 'home';
 
-  const [donations, setDonations] = useState([]);
-  const [loading, setLoading] = useState(true);
+  const [donations, setDonations] = useState(getStoredDonations());
+  const [loading, setLoading] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [notifications, setNotifications] = useState([]);
@@ -29,14 +44,16 @@ export const RestaurantDashboard = () => {
 
   const fetchDonations = () => {
     setLoading(true);
+    const savedCustom = getStoredDonations();
     donationsApi.getAll()
       .then((res) => {
-        const list = res.data.data || [];
-        if (list.length > 0) {
-          setDonations(list);
-        }
+        const apiList = res.data.data || [];
+        const merged = [...savedCustom, ...apiList.filter(a => !savedCustom.some(c => c.id === a.id))];
+        setDonations(merged);
       })
-      .catch(() => {})
+      .catch(() => {
+        if (savedCustom.length > 0) setDonations(savedCustom);
+      })
       .finally(() => setLoading(false));
 
     notificationsApi.getNotifications()
@@ -74,8 +91,11 @@ export const RestaurantDashboard = () => {
       }]
     };
 
-    // Prepend immediately to state for 100% instant UI update
-    setDonations((prev) => [created, ...prev]);
+    // Save permanently to localStorage
+    saveCustomDonation(created);
+
+    // Prepend immediately to state
+    setDonations((prev) => [created, ...prev.filter(d => d.id !== created.id)]);
     setIsModalOpen(false);
 
     // Reset form fields

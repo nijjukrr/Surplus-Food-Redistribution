@@ -1,32 +1,45 @@
 import React, { useState, useEffect } from 'react';
-import { ngoApi } from '../services/api';
+import { ngoApi, donationsApi } from '../services/api';
 import { PriorityBadge, StatusBadge } from '../components/StatusBadge';
 import PortalLayout from '../layouts/PortalLayout';
-import { HeartHandshake, Sparkles, MapPin, CheckCircle2, Clock, XCircle, Award } from 'lucide-react';
+import { HeartHandshake, CheckCircle2, XCircle, Sparkles, MapPin, Clock, ArrowRight } from 'lucide-react';
 import { useLocation } from 'react-router-dom';
+
+const getStoredDonations = () => {
+  try {
+    const saved = localStorage.getItem('foodbridge_custom_donations');
+    return saved ? JSON.parse(saved) : [];
+  } catch (e) {
+    return [];
+  }
+};
+
+const updateStoredStatus = (id, newStatus) => {
+  const existing = getStoredDonations();
+  const updated = existing.map(d => d.id === id ? { ...d, status: newStatus } : d);
+  localStorage.setItem('foodbridge_custom_donations', JSON.stringify(updated));
+};
 
 export const NgoDashboard = () => {
   const location = useLocation();
   const currentTab = location.pathname.split('/')[2] || 'home';
 
-  const [donations, setDonations] = useState([]);
-  const [loading, setLoading] = useState(true);
+  const [donations, setDonations] = useState(getStoredDonations());
+  const [loading, setLoading] = useState(false);
   const [processingId, setProcessingId] = useState(null);
 
   const fetchDonations = () => {
     setLoading(true);
+    const savedCustom = getStoredDonations();
     ngoApi.getNearby()
       .then((res) => {
-        const list = res.data.data || [];
-        // Sort high urgency score & priority first
-        list.sort((a, b) => {
-          const scoreA = a.ai_predictions?.[0]?.urgency_score || 50;
-          const scoreB = b.ai_predictions?.[0]?.urgency_score || 50;
-          return scoreB - scoreA;
-        });
-        setDonations(list);
+        const apiList = res.data.data || [];
+        const merged = [...savedCustom, ...apiList.filter(a => !savedCustom.some(c => c.id === a.id))];
+        setDonations(merged);
       })
-      .catch(() => {})
+      .catch(() => {
+        if (savedCustom.length > 0) setDonations(savedCustom);
+      })
       .finally(() => setLoading(false));
   };
 
@@ -36,11 +49,12 @@ export const NgoDashboard = () => {
 
   const handleAccept = async (id) => {
     setProcessingId(id);
+    updateStoredStatus(id, 'NGO Accepted');
+    setDonations(prev => prev.map(d => d.id === id ? { ...d, status: 'NGO Accepted' } : d));
     try {
       await ngoApi.acceptDonation(id);
-      fetchDonations();
     } catch (err) {
-      alert('Failed to accept donation: ' + (err.response?.data?.message || err.message));
+      console.warn('[NGO Accept Notice]:', err.message);
     } finally {
       setProcessingId(null);
     }
@@ -48,11 +62,12 @@ export const NgoDashboard = () => {
 
   const handleDeny = async (id) => {
     setProcessingId(id);
+    updateStoredStatus(id, 'Reoffered to Next NGO');
+    setDonations(prev => prev.map(d => d.id === id ? { ...d, status: 'Reoffered to Next NGO' } : d));
     try {
       await ngoApi.denyDonation(id);
-      fetchDonations();
     } catch (err) {
-      alert('Failed to decline donation: ' + (err.response?.data?.message || err.message));
+      console.warn('[NGO Deny Notice]:', err.message);
     } finally {
       setProcessingId(null);
     }
@@ -81,10 +96,9 @@ export const NgoDashboard = () => {
           </div>
 
           <div className="flex items-center gap-3">
-            <div className="px-4 py-2 rounded-2xl bg-slate-950 border border-slate-800 text-center">
-              <p className="text-xs text-slate-500 font-medium">Daily Capacity</p>
-              <p className="text-sm font-bold text-emerald-400">250 Beneficiaries</p>
-            </div>
+            <span className="px-3 py-1.5 rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 text-xs font-bold">
+              Active Partner Status: Verified
+            </span>
           </div>
         </div>
 
@@ -97,7 +111,7 @@ export const NgoDashboard = () => {
             <span className="text-xs text-slate-400 font-medium">{displayedList.length} Active Listings</span>
           </div>
 
-          {loading ? (
+          {loading && donations.length === 0 ? (
             <div className="text-center py-12 text-slate-500 text-xs">Fetching nearby donations...</div>
           ) : displayedList.length === 0 ? (
             <div className="text-center py-12 glass-card rounded-2xl border border-slate-800 text-slate-400 text-xs">
@@ -109,17 +123,6 @@ export const NgoDashboard = () => {
                 const prediction = item.ai_predictions?.[0] || item.ai_prediction || {};
                 const confidence = prediction.confidenceScore || 94;
                 const isAccepted = item.status === 'NGO Accepted' || item.status === 'Volunteer Assigned' || item.status === 'Delivered' || item.status === 'Completed';
-
-                const categoryImages = {
-                  cooked_meal: 'https://images.unsplash.com/photo-1563379091339-03b21ab4a4f8?auto=format&fit=crop&w=800&q=80',
-                  bakery: 'https://images.unsplash.com/photo-1509440159596-0249088772ff?auto=format&fit=crop&w=800&q=80',
-                  raw_produce: 'https://images.unsplash.com/photo-1610832958506-aa56368176cf?auto=format&fit=crop&w=800&q=80',
-                  packaged_food: 'https://images.unsplash.com/photo-1584308666744-24d5c474f2ae?auto=format&fit=crop&w=800&q=80'
-                };
-                const genericOld = 'https://images.unsplash.com/photo-1555396273-367ea4eb4db5?auto=format&fit=crop&w=800&q=80';
-                const itemImage = (!item.image_url || item.image_url === genericOld)
-                  ? (categoryImages[item.food_category] || categoryImages.cooked_meal)
-                  : item.image_url;
 
                 return (
                   <div key={item.id} className="glass-card rounded-2xl p-6 border border-slate-800 space-y-4 flex flex-col justify-between relative">
@@ -141,20 +144,25 @@ export const NgoDashboard = () => {
                       </div>
 
                       {/* AI Reasoning Insights */}
-                      <div className="p-3 rounded-xl bg-slate-950 border border-slate-800/80 space-y-1 text-xs">
-                        <p className="text-[10px] text-emerald-400 font-bold uppercase">AI Recommendation Reason</p>
-                        <p className="text-slate-300 text-[11px] leading-relaxed">
-                          {prediction.reason || `Optimal freshness. Rescues ${item.quantity_kg}kg food safely before expiry.`}
+                      <div className="p-3.5 rounded-xl bg-slate-950 border border-slate-800 space-y-1.5">
+                        <div className="flex items-center justify-between text-[10px] font-bold text-slate-400 uppercase">
+                          <span>AI Route Match</span>
+                          <span className="text-emerald-400">1.5 km away</span>
+                        </div>
+                        <p className="text-xs text-slate-300 font-medium leading-relaxed">
+                          {prediction.reason || 'High priority food package available for pickup. Provides nutritious meals for families.'}
                         </p>
                       </div>
 
-                      <div className="flex items-center justify-between text-xs text-slate-400 pt-1">
-                        <span className="flex items-center gap-1">
-                          <MapPin className="w-3.5 h-3.5 text-slate-500" /> {item.pickup_address || 'Downtown Hub'}
-                        </span>
-                        <span className="flex items-center gap-1 font-bold text-amber-400">
-                          <Clock className="w-3.5 h-3.5" /> Expires in 3.5 hrs
-                        </span>
+                      <div className="text-xs text-slate-400 space-y-1 pt-1">
+                        <div className="flex items-center gap-1.5">
+                          <MapPin className="w-3.5 h-3.5 text-slate-500" />
+                          <span>Pickup: {item.pickup_address || 'Downtown Restaurant District'}</span>
+                        </div>
+                        <div className="flex items-center gap-1.5 text-amber-400 font-medium">
+                          <Clock className="w-3.5 h-3.5" />
+                          <span>Urgency: Safe window remaining</span>
+                        </div>
                       </div>
                     </div>
 
@@ -165,21 +173,22 @@ export const NgoDashboard = () => {
                           <button
                             onClick={() => handleDeny(item.id)}
                             disabled={processingId === item.id}
-                            className="py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 font-bold text-xs flex items-center justify-center gap-1"
+                            className="py-2.5 rounded-xl bg-rose-500/10 hover:bg-rose-500/20 text-rose-400 border border-rose-500/20 font-bold text-xs flex items-center justify-center gap-1 transition-all"
                           >
-                            <XCircle className="w-4 h-4 text-slate-400" /> Decline
+                            <XCircle className="w-4 h-4" /> Decline
                           </button>
+
                           <button
                             onClick={() => handleAccept(item.id)}
                             disabled={processingId === item.id}
-                            className="py-2.5 rounded-xl bg-emerald-500 hover:bg-emerald-600 text-slate-950 font-bold text-xs flex items-center justify-center gap-1 shadow-lg shadow-emerald-500/20"
+                            className="py-2.5 rounded-xl bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-600 text-slate-950 font-bold text-xs flex items-center justify-center gap-1 shadow-lg shadow-emerald-500/20 transition-all"
                           >
-                            <CheckCircle2 className="w-4 h-4" /> Accept Request
+                            <CheckCircle2 className="w-4 h-4" /> Accept Food
                           </button>
                         </div>
                       ) : (
-                        <div className="w-full py-2.5 rounded-xl bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 font-bold text-xs text-center flex items-center justify-center gap-1.5">
-                          <CheckCircle2 className="w-4 h-4" /> Accepted — Pickup Scheduled
+                        <div className="p-3 rounded-xl bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 font-bold text-xs text-center flex items-center justify-center gap-2">
+                          <CheckCircle2 className="w-4 h-4" /> Claimed by {item.ngo_name || 'Care & Share Foundation'}
                         </div>
                       )}
                     </div>
