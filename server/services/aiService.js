@@ -54,10 +54,12 @@ EVALUATION RULES:
 Return ONLY raw JSON, no markdown formatting or extra text.
 `;
 
-        const model = ai.getGenerativeModel({
-          model: 'gemini-1.5-flash',
-          generationConfig: { responseMimeType: 'application/json' }
-        });
+        let model;
+        try {
+          model = ai.getGenerativeModel({ model: 'gemini-2.5-flash', generationConfig: { responseMimeType: 'application/json' } });
+        } catch (e) {
+          model = ai.getGenerativeModel({ model: 'gemini-1.5-flash' });
+        }
 
         const response = await model.generateContent(prompt);
         const rawText = response.response.text() || '';
