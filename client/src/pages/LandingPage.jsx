@@ -43,28 +43,8 @@ export const LandingPage = () => {
             </h1>
 
             <p className="text-lg sm:text-xl text-slate-300 max-w-3xl mx-auto font-light leading-relaxed">
-              FoodBridge AI uses Google Gemini AI & Supabase to analyze food freshness, calculate priority scores, and route surplus donations from restaurants directly to nearby NGOs and volunteer couriers in real-time.
+              FoodBridge AI empowers communities by connecting commercial food surplus with local charities and volunteer couriers in real-time. Using AI freshness evaluations, we turn potential food waste into immediate, nutritious meals for families in need.
             </p>
-
-            {/* Quick Portal Action Buttons */}
-            <div className="pt-4 flex flex-wrap justify-center gap-4">
-              <Link
-                to="/login?role=restaurant"
-                className="px-8 py-4 rounded-2xl bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-600 hover:to-teal-700 text-slate-950 font-bold text-sm shadow-xl shadow-emerald-500/25 flex items-center gap-2 hover:scale-105 transition-all"
-              >
-                <Utensils className="w-4 h-4" />
-                Donate Surplus Food
-                <ArrowRight className="w-4 h-4" />
-              </Link>
-
-              <Link
-                to="/login?role=ngo"
-                className="px-8 py-4 rounded-2xl bg-slate-900 hover:bg-slate-800 text-slate-200 font-semibold text-sm border border-slate-700/80 flex items-center gap-2 hover:scale-105 transition-all"
-              >
-                <Heart className="w-4 h-4 text-rose-400" />
-                Claim Donations as NGO
-              </Link>
-            </div>
 
             {/* Key Impact Stats */}
             <div id="stats" className="pt-12 grid grid-cols-2 md:grid-cols-4 gap-4 max-w-4xl mx-auto">
