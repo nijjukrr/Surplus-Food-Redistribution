@@ -5,6 +5,8 @@ import PortalLayout from '../layouts/PortalLayout';
 import { HeartHandshake, CheckCircle2, XCircle, Sparkles, MapPin, Clock, Truck, User, Phone, Bike, FileText } from 'lucide-react';
 import { useLocation } from 'react-router-dom';
 
+import { getStoredDrivers } from '../services/driverService';
+
 const getStoredDonations = () => {
   try {
     const saved = localStorage.getItem('foodbridge_custom_donations');
@@ -20,22 +22,19 @@ const updateStoredItem = (id, updates) => {
   localStorage.setItem('foodbridge_custom_donations', JSON.stringify(updated));
 };
 
-const availableDrivers = [
-  { id: 'drv-1', name: 'Alex Rivera', phone: '+91 98765 43210', dob: '1998-05-14', bike: 'KA-01-EA-1234', aadhar: '1234-5678-9012' },
-  { id: 'drv-2', name: 'Rohan Sharma', phone: '+91 91234 56789', dob: '1995-11-20', bike: 'KA-02-MB-5678', aadhar: '9876-5432-1098' }
-];
-
 export const NgoDashboard = () => {
   const location = useLocation();
   const currentTab = location.pathname.split('/')[2] || 'home';
 
   const [donations, setDonations] = useState(getStoredDonations());
+  const [availableDrivers, setAvailableDrivers] = useState(getStoredDrivers());
   const [loading, setLoading] = useState(false);
   const [processingId, setProcessingId] = useState(null);
   const [selectedDrivers, setSelectedDrivers] = useState({});
 
   const fetchDonations = () => {
     setLoading(true);
+    setAvailableDrivers(getStoredDrivers());
     const savedCustom = getStoredDonations();
     ngoApi.getNearby()
       .then((res) => {
