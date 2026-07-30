@@ -29,7 +29,6 @@ export const Navbar = () => {
           <a href="#how-it-works" className="hover:text-emerald-400 transition-colors">How It Works</a>
           <a href="#features" className="hover:text-emerald-400 transition-colors">AI Engine</a>
           <a href="#stats" className="hover:text-emerald-400 transition-colors">Impact Stats</a>
-          <a href="#sdg" className="hover:text-emerald-400 transition-colors">SDG #2 Goal</a>
           <a href="#portals" className="hover:text-emerald-400 transition-colors">Choose Portal</a>
         </nav>
 

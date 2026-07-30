@@ -165,28 +165,6 @@ export const LandingPage = () => {
           </div>
         </section>
 
-        {/* UN SDG Goal #2 (Zero Hunger) Showcase */}
-        <section id="sdg" className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="p-8 sm:p-12 rounded-3xl bg-gradient-to-br from-amber-950/30 via-slate-900 to-emerald-950/30 border border-amber-500/20 space-y-6 text-center md:text-left md:flex items-center justify-between gap-8">
-            <div className="space-y-3 max-w-2xl">
-              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-amber-500/10 text-amber-400 text-xs font-bold border border-amber-500/20">
-                <Award className="w-3.5 h-3.5" /> UN SUSTAINABLE DEVELOPMENT GOAL #2
-              </div>
-              <h2 className="text-3xl font-extrabold text-white">Targeting Zero Hunger & Zero Waste</h2>
-              <p className="text-xs text-slate-300 leading-relaxed">
-                Over 1/3 of global food is wasted while millions go hungry. FoodBridge AI transforms commercial surplus into immediate nutritious community meals through intelligent AI logistics.
-              </p>
-            </div>
-
-            <div className="shrink-0 pt-4 md:pt-0">
-              <div className="p-6 rounded-2xl bg-amber-500 text-slate-950 font-black text-2xl text-center shadow-xl shadow-amber-500/20">
-                SDG GOAL #2 <br />
-                <span className="text-xs font-bold tracking-widest text-slate-900 uppercase">ZERO HUNGER</span>
-              </div>
-            </div>
-          </div>
-        </section>
-
       </div>
 
       {/* Footer */}
