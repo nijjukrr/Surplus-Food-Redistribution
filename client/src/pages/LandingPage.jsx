@@ -24,8 +24,8 @@ export const LandingPage = () => {
 
       <div className="space-y-24 pb-20">
         
-        {/* Hero Section */}
-        <section className="relative pt-16 pb-20 overflow-hidden">
+        {/* Hero / About Section */}
+        <section id="about" className="relative pt-16 pb-20 overflow-hidden">
           <div className="absolute inset-0 bg-[radial-gradient(ellipse_80%_80%_at_50%_-20%,rgba(16,185,129,0.18),rgba(255,255,255,0))] pointer-events-none"></div>
           
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10 text-center space-y-6">
