@@ -57,8 +57,8 @@ export const Sidebar = () => {
         };
       case 'volunteer':
         return {
-          title: 'Volunteer Portal',
-          subtitle: 'Logistics Courier',
+          title: 'NGO Delivery Partner',
+          subtitle: 'Volunteer Courier Driver',
           icon: Truck,
           color: 'from-blue-500 to-indigo-400',
           badgeBg: 'bg-blue-500/10 text-blue-400 border-blue-500/20',

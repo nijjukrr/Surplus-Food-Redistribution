@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { ngoApi, donationsApi } from '../services/api';
 import { PriorityBadge, StatusBadge } from '../components/StatusBadge';
 import PortalLayout from '../layouts/PortalLayout';
-import { HeartHandshake, CheckCircle2, XCircle, Sparkles, MapPin, Clock, ArrowRight } from 'lucide-react';
+import { HeartHandshake, CheckCircle2, XCircle, Sparkles, MapPin, Clock, Truck, User, Phone, Bike, FileText } from 'lucide-react';
 import { useLocation } from 'react-router-dom';
 
 const getStoredDonations = () => {
@@ -14,11 +14,16 @@ const getStoredDonations = () => {
   }
 };
 
-const updateStoredStatus = (id, newStatus) => {
+const updateStoredItem = (id, updates) => {
   const existing = getStoredDonations();
-  const updated = existing.map(d => d.id === id ? { ...d, status: newStatus } : d);
+  const updated = existing.map(d => d.id === id ? { ...d, ...updates } : d);
   localStorage.setItem('foodbridge_custom_donations', JSON.stringify(updated));
 };
+
+const availableDrivers = [
+  { id: 'drv-1', name: 'Alex Rivera', phone: '+91 98765 43210', dob: '1998-05-14', bike: 'KA-01-EA-1234', aadhar: '1234-5678-9012' },
+  { id: 'drv-2', name: 'Rohan Sharma', phone: '+91 91234 56789', dob: '1995-11-20', bike: 'KA-02-MB-5678', aadhar: '9876-5432-1098' }
+];
 
 export const NgoDashboard = () => {
   const location = useLocation();
@@ -27,6 +32,7 @@ export const NgoDashboard = () => {
   const [donations, setDonations] = useState(getStoredDonations());
   const [loading, setLoading] = useState(false);
   const [processingId, setProcessingId] = useState(null);
+  const [selectedDrivers, setSelectedDrivers] = useState({});
 
   const fetchDonations = () => {
     setLoading(true);
@@ -49,7 +55,7 @@ export const NgoDashboard = () => {
 
   const handleAccept = async (id) => {
     setProcessingId(id);
-    updateStoredStatus(id, 'NGO Accepted');
+    updateStoredItem(id, { status: 'NGO Accepted' });
     setDonations(prev => prev.map(d => d.id === id ? { ...d, status: 'NGO Accepted' } : d));
     try {
       await ngoApi.acceptDonation(id);
@@ -60,9 +66,25 @@ export const NgoDashboard = () => {
     }
   };
 
+  const handleAssignDriver = (donationId) => {
+    const driverId = selectedDrivers[donationId] || availableDrivers[0].id;
+    const driverObj = availableDrivers.find(d => d.id === driverId) || availableDrivers[0];
+
+    updateStoredItem(donationId, {
+      status: 'Volunteer Assigned',
+      assigned_driver: driverObj
+    });
+
+    setDonations(prev => prev.map(d => d.id === donationId ? {
+      ...d,
+      status: 'Volunteer Assigned',
+      assigned_driver: driverObj
+    } : d));
+  };
+
   const handleDeny = async (id) => {
     setProcessingId(id);
-    updateStoredStatus(id, 'Reoffered to Next NGO');
+    updateStoredItem(id, { status: 'Reoffered to Next NGO' });
     setDonations(prev => prev.map(d => d.id === id ? { ...d, status: 'Reoffered to Next NGO' } : d));
     try {
       await ngoApi.denyDonation(id);
@@ -92,7 +114,7 @@ export const NgoDashboard = () => {
               <HeartHandshake className="w-3.5 h-3.5" /> NGO BENEFICIARY PORTAL
             </div>
             <h1 className="text-3xl font-extrabold text-white">Care & Share Foundation</h1>
-            <p className="text-xs text-slate-400 mt-1">Discover AI-prioritized surplus food donations nearby and accept for immediate community distribution.</p>
+            <p className="text-xs text-slate-400 mt-1">Accept surplus food donations and assign registered delivery partner drivers for pickup.</p>
           </div>
 
           <div className="flex items-center gap-3">
@@ -102,27 +124,29 @@ export const NgoDashboard = () => {
           </div>
         </div>
 
-        {/* Available Donations Feed */}
+        {/* Available & Accepted Donations Feed */}
         <div className="space-y-4">
           <div className="flex items-center justify-between">
             <h2 className="text-xl font-bold text-white flex items-center gap-2">
-              <Sparkles className="w-5 h-5 text-emerald-400" /> AI-Recommended Available Donations
+              <Sparkles className="w-5 h-5 text-emerald-400" /> 
+              {currentTab === 'accepted' ? 'Accepted Donations & Driver Assignment' : 'Surplus Food Listings'}
             </h2>
-            <span className="text-xs text-slate-400 font-medium">{displayedList.length} Active Listings</span>
+            <span className="text-xs text-slate-400 font-medium">{displayedList.length} Listings</span>
           </div>
 
           {loading && donations.length === 0 ? (
             <div className="text-center py-12 text-slate-500 text-xs">Fetching nearby donations...</div>
           ) : displayedList.length === 0 ? (
             <div className="text-center py-12 glass-card rounded-2xl border border-slate-800 text-slate-400 text-xs">
-              No active food listings available right now.
+              No food listings available right now.
             </div>
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {displayedList.map((item) => {
                 const prediction = item.ai_predictions?.[0] || item.ai_prediction || {};
                 const confidence = prediction.confidenceScore || 94;
-                const isAccepted = item.status === 'NGO Accepted' || item.status === 'Volunteer Assigned' || item.status === 'Delivered' || item.status === 'Completed';
+                const isAccepted = item.status === 'NGO Accepted';
+                const isAssigned = item.status === 'Volunteer Assigned' || item.status === 'Picked Up' || item.status === 'Delivered' || item.status === 'Completed';
 
                 return (
                   <div key={item.id} className="glass-card rounded-2xl p-6 border border-slate-800 space-y-4 flex flex-col justify-between relative">
@@ -130,9 +154,7 @@ export const NgoDashboard = () => {
                     <div className="space-y-3">
                       <div className="flex items-center justify-between gap-2">
                         <PriorityBadge priority={prediction.priority} score={prediction.urgency_score} />
-                        <span className="px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-400 text-[10px] font-bold border border-emerald-500/20">
-                          {confidence}% AI Confidence
-                        </span>
+                        <StatusBadge status={item.status} />
                       </div>
 
                       <div>
@@ -150,7 +172,7 @@ export const NgoDashboard = () => {
                           <span className="text-emerald-400">1.5 km away</span>
                         </div>
                         <p className="text-xs text-slate-300 font-medium leading-relaxed">
-                          {prediction.reason || 'High priority food package available for pickup. Provides nutritious meals for families.'}
+                          {prediction.reason || 'High priority food package available for pickup.'}
                         </p>
                       </div>
 
@@ -159,16 +181,51 @@ export const NgoDashboard = () => {
                           <MapPin className="w-3.5 h-3.5 text-slate-500" />
                           <span>Pickup: {item.pickup_address || 'Downtown Restaurant District'}</span>
                         </div>
-                        <div className="flex items-center gap-1.5 text-amber-400 font-medium">
-                          <Clock className="w-3.5 h-3.5" />
-                          <span>Urgency: Safe window remaining</span>
-                        </div>
                       </div>
+
+                      {/* Driver Assignment Section for Accepted Food */}
+                      {isAccepted && (
+                        <div className="p-4 rounded-xl bg-blue-500/10 border border-blue-500/20 space-y-3 pt-3">
+                          <div className="flex items-center gap-2 text-xs font-bold text-blue-400">
+                            <Truck className="w-4 h-4" /> NGO Driver Assignment
+                          </div>
+                          <div>
+                            <label className="block text-[10px] font-bold uppercase text-slate-400 mb-1">Select Delivery Partner Driver</label>
+                            <select
+                              value={selectedDrivers[item.id] || availableDrivers[0].id}
+                              onChange={(e) => setSelectedDrivers({ ...selectedDrivers, [item.id]: e.target.value })}
+                              className="w-full px-3 py-2 rounded-xl bg-slate-950 border border-slate-800 text-slate-200 text-xs focus:outline-none focus:border-blue-500"
+                            >
+                              {availableDrivers.map(drv => (
+                                <option key={drv.id} value={drv.id}>
+                                  {drv.name} ({drv.bike})
+                                </option>
+                              ))}
+                            </select>
+                          </div>
+                          <button
+                            onClick={() => handleAssignDriver(item.id)}
+                            className="w-full py-2.5 rounded-xl bg-blue-500 hover:bg-blue-600 text-white font-bold text-xs flex items-center justify-center gap-2 shadow-lg shadow-blue-500/20"
+                          >
+                            <Truck className="w-4 h-4" /> Assign Driver for Pickup
+                          </button>
+                        </div>
+                      )}
+
+                      {/* Driver Assigned Card Badge */}
+                      {isAssigned && (
+                        <div className="p-3.5 rounded-xl bg-slate-950 border border-blue-500/30 text-xs space-y-1">
+                          <p className="text-[10px] font-bold uppercase text-blue-400">Assigned Driver Courier</p>
+                          <p className="text-slate-200 font-bold">{item.assigned_driver?.name || 'Alex Rivera'}</p>
+                          <p className="text-[11px] text-slate-400">Bike No: <strong className="text-emerald-400">{item.assigned_driver?.bike || 'KA-01-EA-1234'}</strong> • Phone: {item.assigned_driver?.phone || '+91 98765 43210'}</p>
+                          <p className="text-[10px] text-slate-500">Aadhar: {item.assigned_driver?.aadhar || '1234-5678-9012'}</p>
+                        </div>
+                      )}
                     </div>
 
                     {/* NGO Action Buttons */}
                     <div className="pt-2">
-                      {!isAccepted ? (
+                      {!isAccepted && !isAssigned ? (
                         <div className="grid grid-cols-2 gap-2">
                           <button
                             onClick={() => handleDeny(item.id)}
@@ -186,11 +243,7 @@ export const NgoDashboard = () => {
                             <CheckCircle2 className="w-4 h-4" /> Accept Food
                           </button>
                         </div>
-                      ) : (
-                        <div className="p-3 rounded-xl bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 font-bold text-xs text-center flex items-center justify-center gap-2">
-                          <CheckCircle2 className="w-4 h-4" /> Claimed by {item.ngo_name || 'Care & Share Foundation'}
-                        </div>
-                      )}
+                      ) : null}
                     </div>
 
                   </div>
