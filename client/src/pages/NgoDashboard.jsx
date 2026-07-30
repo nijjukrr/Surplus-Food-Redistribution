@@ -1,9 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import { ngoApi, donationsApi } from '../services/api';
+import { useAuth } from '../context/AuthContext';
 import { PriorityBadge, StatusBadge } from '../components/StatusBadge';
 import { HeartHandshake, Sparkles, MapPin, CheckCircle2, Clock, Award } from 'lucide-react';
 
 export const NgoDashboard = () => {
+  const { role, setRole } = useAuth();
   const [donations, setDonations] = useState([]);
   const [loading, setLoading] = useState(true);
   const [acceptingId, setAcceptingId] = useState(null);
@@ -26,6 +28,9 @@ export const NgoDashboard = () => {
   };
 
   useEffect(() => {
+    if (role !== 'ngo' && role !== 'admin') {
+      setRole('ngo');
+    }
     fetchDonations();
   }, []);
 
@@ -35,7 +40,7 @@ export const NgoDashboard = () => {
       await ngoApi.acceptDonation(id);
       fetchDonations();
     } catch (err) {
-      alert('Failed to accept donation: ' + err.message);
+      alert('Failed to accept donation: ' + (err.response?.data?.message || err.message));
     } finally {
       setAcceptingId(null);
     }

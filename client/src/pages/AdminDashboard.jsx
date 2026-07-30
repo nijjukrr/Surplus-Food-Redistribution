@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { adminApi } from '../services/api';
+import { useAuth } from '../context/AuthContext';
 import { 
   ShieldCheck, 
   Utensils, 
@@ -15,11 +16,15 @@ import {
 } from 'lucide-react';
 
 export const AdminDashboard = () => {
+  const { role, setRole } = useAuth();
   const [analytics, setAnalytics] = useState(null);
   const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    if (role !== 'admin') {
+      setRole('admin');
+    }
     Promise.all([adminApi.getAnalytics(), adminApi.getUsers()])
       .then(([analyticsRes, usersRes]) => {
         setAnalytics(analyticsRes.data.data);

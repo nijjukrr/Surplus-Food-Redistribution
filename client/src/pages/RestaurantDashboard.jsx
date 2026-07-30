@@ -1,9 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import { donationsApi } from '../services/api';
+import { useAuth } from '../context/AuthContext';
 import { PriorityBadge, StatusBadge } from '../components/StatusBadge';
 import { Plus, Utensils, Clock, MapPin, Sparkles, RefreshCw, CheckCircle2 } from 'lucide-react';
 
 export const RestaurantDashboard = () => {
+  const { role, setRole } = useAuth();
   const [donations, setDonations] = useState([]);
   const [loading, setLoading] = useState(true);
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -31,6 +33,9 @@ export const RestaurantDashboard = () => {
   };
 
   useEffect(() => {
+    if (role !== 'restaurant' && role !== 'admin') {
+      setRole('restaurant');
+    }
     fetchDonations();
   }, []);
 
@@ -58,7 +63,7 @@ export const RestaurantDashboard = () => {
       });
       fetchDonations();
     } catch (err) {
-      alert('Error creating donation: ' + err.message);
+      alert('Error creating donation: ' + (err.response?.data?.message || err.message));
     } finally {
       setSubmitting(false);
     }

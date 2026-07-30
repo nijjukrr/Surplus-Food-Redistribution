@@ -1,10 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import { volunteerApi, donationsApi } from '../services/api';
+import { useAuth } from '../context/AuthContext';
 import { PriorityBadge, StatusBadge } from '../components/StatusBadge';
 import InteractiveMap from '../components/InteractiveMap';
 import { Truck, MapPin, CheckCircle2, ArrowRight, Navigation, ShieldCheck } from 'lucide-react';
 
 export const VolunteerDashboard = () => {
+  const { role, setRole } = useAuth();
   const [donations, setDonations] = useState([]);
   const [loading, setLoading] = useState(true);
   const [activeDonation, setActiveDonation] = useState(null);
@@ -25,6 +27,9 @@ export const VolunteerDashboard = () => {
   };
 
   useEffect(() => {
+    if (role !== 'volunteer' && role !== 'admin') {
+      setRole('volunteer');
+    }
     fetchMissions();
   }, []);
 
@@ -34,7 +39,7 @@ export const VolunteerDashboard = () => {
       await volunteerApi.claimDelivery(id);
       fetchMissions();
     } catch (err) {
-      alert('Error claiming delivery: ' + err.message);
+      alert('Error claiming delivery: ' + (err.response?.data?.message || err.message));
     } finally {
       setProcessingId(null);
     }
@@ -46,7 +51,7 @@ export const VolunteerDashboard = () => {
       await volunteerApi.updateStep(id, step);
       fetchMissions();
     } catch (err) {
-      alert('Error updating delivery step: ' + err.message);
+      alert('Error updating delivery step: ' + (err.response?.data?.message || err.message));
     } finally {
       setProcessingId(null);
     }

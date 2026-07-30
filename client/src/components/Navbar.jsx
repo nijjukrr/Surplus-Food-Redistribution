@@ -61,6 +61,11 @@ export const Navbar = () => {
               <Link
                 key={link.path}
                 to={link.path}
+                onClick={() => {
+                  if (link.activeRole) {
+                    setRole(link.activeRole);
+                  }
+                }}
                 className={`flex items-center gap-2 px-3.5 py-1.5 rounded-full text-xs font-medium transition-all ${
                   isActive
                     ? 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 shadow-sm'
