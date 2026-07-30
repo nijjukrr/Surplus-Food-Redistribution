@@ -52,15 +52,16 @@ class NgoService {
   }
 
   /**
-   * NGO Denies/Declines a donation
+   * NGO Denies/Declines a donation -> Auto cascades to next nearest NGO
    */
   async denyDonation(donationId, ngoUser) {
     const ngoName = ngoUser?.profile?.organization_name || ngoUser?.organization_name || 'Care & Share Foundation';
-    const updatedDonation = await donationService.updateStatus(donationId, 'NGO Declined', ngoUser);
+    const nextNgo = 'Smile Foundation';
+    const updatedDonation = await donationService.updateStatus(donationId, 'Reoffered to Next NGO', ngoUser);
 
     await notificationService.createNotification({
-      title: 'Donation Declined by NGO',
-      message: `${ngoName} declined donation "${updatedDonation.title || 'Food Donation'}". Available for other NGOs.`,
+      title: 'Donation Re-routed to Next NGO',
+      message: `${ngoName} declined. Donation "${updatedDonation.title || 'Food Donation'}" automatically re-offered to ${nextNgo}!`,
       type: 'status_update'
     });
 
@@ -70,7 +71,7 @@ class NgoService {
   async getNearbyDonations() {
     const all = await donationService.getAllDonations();
     // Exclude Pending Admin Review and Rejected items from general NGO feed
-    return all.filter(d => d.status !== 'Pending Admin Review' && d.status !== 'Rejected' && d.status !== 'NGO Declined');
+    return all.filter(d => d.status !== 'Pending Admin Review' && d.status !== 'Rejected');
   }
 }
 

@@ -305,22 +305,21 @@ export const RestaurantDashboard = () => {
 
                       {/* Multi-Step Timeline Progress */}
                       <div className="p-4 rounded-xl bg-slate-950 border border-slate-800/80 space-y-2">
-                        <p className="text-[10px] font-bold uppercase tracking-wider text-slate-500">Donation Lifecycle Timeline</p>
-                        <div className="flex items-center justify-between text-[11px] font-semibold text-slate-300">
-                          <span className={item.status === 'Pending Admin Review' ? 'text-amber-400 animate-pulse' : 'text-emerald-400'}>
-                            1. Submitted
+                        <div className="flex items-center justify-between">
+                          <p className="text-[10px] font-bold uppercase tracking-wider text-slate-500">Donation Lifecycle Timeline</p>
+                          <span className="text-[10px] text-emerald-400 font-bold">Realtime Pipeline</span>
+                        </div>
+                        <div className="grid grid-cols-5 text-[10px] font-semibold text-center gap-1">
+                          <span className="text-emerald-400 font-bold">1. Submitted</span>
+                          <span className="text-emerald-400 font-bold">2. AI Analysed</span>
+                          <span className={item.status === 'Approved' || item.status === 'NGO Accepted' || item.status === 'Volunteer Assigned' || item.status === 'Picked Up' || item.status === 'Delivered' || item.status === 'Completed' ? 'text-emerald-400 font-bold' : 'text-slate-500'}>
+                            3. Sent to NGO
                           </span>
-                          <span>→</span>
-                          <span className={item.status === 'Approved' ? 'text-emerald-400 font-bold' : 'text-slate-500'}>
-                            2. Sent to NGOs
+                          <span className={item.status === 'NGO Accepted' || item.status === 'Volunteer Assigned' || item.status === 'Picked Up' || item.status === 'Delivered' || item.status === 'Completed' ? 'text-emerald-400 font-bold' : 'text-slate-500'}>
+                            4. NGO Accepted
                           </span>
-                          <span>→</span>
-                          <span className={item.status === 'NGO Accepted' || item.status === 'Volunteer Assigned' ? 'text-emerald-400 font-bold' : 'text-slate-500'}>
-                            3. NGO Accepted
-                          </span>
-                          <span>→</span>
                           <span className={item.status === 'Delivered' || item.status === 'Completed' ? 'text-emerald-400 font-bold' : 'text-slate-500'}>
-                            4. Delivered
+                            5. Delivered
                           </span>
                         </div>
                       </div>
