@@ -1,11 +1,11 @@
 import React from 'react';
 import { Sidebar } from '../components/Sidebar';
-import { Bell, Sparkles, UtensilsCrossed } from 'lucide-react';
+import { UtensilsCrossed } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { Link } from 'react-router-dom';
 
 export const PortalLayout = ({ children }) => {
-  const { user, role } = useAuth();
+  const { role } = useAuth();
 
   return (
     <div className="min-h-screen bg-slate-950 flex font-sans text-slate-100 antialiased">
@@ -23,12 +23,6 @@ export const PortalLayout = ({ children }) => {
             </Link>
             <span className="text-slate-700">•</span>
             <span className="text-xs font-bold text-slate-300 capitalize">{role} Controller Portal</span>
-          </div>
-
-          <div className="flex items-center gap-3">
-            <span className="px-3 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-xs font-bold flex items-center gap-1.5">
-              <Sparkles className="w-3.5 h-3.5" /> AI Engine Online
-            </span>
           </div>
         </header>
 

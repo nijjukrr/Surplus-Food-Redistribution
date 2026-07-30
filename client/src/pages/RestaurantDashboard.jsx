@@ -300,7 +300,6 @@ export const RestaurantDashboard = () => {
                       <div className="p-4 rounded-xl bg-slate-950 border border-slate-800/80 space-y-2">
                         <div className="flex items-center justify-between">
                           <p className="text-[10px] font-bold uppercase tracking-wider text-slate-500">Donation Lifecycle Timeline</p>
-                          <span className="text-[10px] text-emerald-400 font-bold">Realtime Pipeline</span>
                         </div>
                         <div className="grid grid-cols-5 text-[10px] font-semibold text-center gap-1">
                           <span className="text-emerald-400 font-bold">1. Submitted</span>
