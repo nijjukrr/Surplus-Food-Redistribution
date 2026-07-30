@@ -127,7 +127,7 @@ class DonationService {
         }
 
         const { data, error } = await query;
-        if (!error && data && data.length > 0) {
+        if (!error && data) {
           return data.map(d => ({
             ...d,
             title: d.title || d.food_name || 'Surplus Food',
@@ -142,7 +142,6 @@ class DonationService {
       }
     }
 
-    // Fallback Mock Data for demo mode
     return this.getMockDonations(filters);
   }
 
@@ -171,8 +170,7 @@ class DonationService {
       }
     }
 
-    const mockList = this.getMockDonations();
-    return mockList.find(d => d.id === id) || mockList[0];
+    return null;
   }
 
   /**
@@ -204,97 +202,10 @@ class DonationService {
   }
 
   /**
-   * Mock donations supplier for seamless demo fallback
+   * Clean empty donations supplier (No hardcoded mock data)
    */
   getMockDonations(filters = {}) {
-    const mockList = [
-      {
-        id: 'don-101',
-        restaurant_name: 'Royal Spice Bistro',
-        title: 'Surplus Biryani & Curry Feast',
-        food_name: 'Surplus Biryani & Curry Feast',
-        description: 'Freshly prepared hyderabadi biryani and vegetable curry from dinner event.',
-        food_category: 'cooked_meal',
-        food_type: 'non_veg',
-        quantity_kg: 25,
-        quantity: 25,
-        cooked_time: new Date(Date.now() - 2 * 3600000).toISOString(),
-        expiry_time: new Date(Date.now() + 3 * 3600000).toISOString(),
-        pickup_address: '108 Grand Avenue, Downtown',
-        latitude: 12.9716,
-        longitude: 77.5946,
-        status: 'Approved',
-        created_at: new Date(Date.now() - 3600000).toISOString(),
-        ai_predictions: [
-          {
-            priority: 'High',
-            urgency_score: 92,
-            estimated_meals: 75,
-            recommended_ngo_name: 'Care & Share Foundation',
-            reason: 'High urgency: Food expires in 3 hours. Provides ~75 nutritious meals.'
-          }
-        ]
-      },
-      {
-        id: 'don-102',
-        restaurant_name: 'Artisan Bakery Hub',
-        title: 'Assorted Bread & Pastries Box',
-        food_name: 'Assorted Bread & Pastries Box',
-        description: 'Surplus whole wheat loaves, croissants, and fruit muffins.',
-        food_category: 'bakery',
-        food_type: 'veg',
-        quantity_kg: 15,
-        quantity: 15,
-        cooked_time: new Date(Date.now() - 5 * 3600000).toISOString(),
-        expiry_time: new Date(Date.now() + 18 * 3600000).toISOString(),
-        pickup_address: '45 Baker Street, West End',
-        latitude: 12.9650,
-        longitude: 77.5850,
-        status: 'Approved',
-        created_at: new Date(Date.now() - 7200000).toISOString(),
-        ai_predictions: [
-          {
-            priority: 'Medium',
-            urgency_score: 55,
-            estimated_meals: 45,
-            recommended_ngo_name: 'Hope Food Bank',
-            reason: 'Baked items with extended shelf life (18 hrs remaining).'
-          }
-        ]
-      },
-      {
-        id: 'don-103',
-        restaurant_name: 'Green Harvest Supermarket',
-        title: 'Fresh Organic Produce & Fruits',
-        food_name: 'Fresh Organic Produce & Fruits',
-        description: 'Apples, oranges, carrots, and leafy greens suitable for soup kitchens.',
-        food_category: 'raw_produce',
-        food_type: 'vegan',
-        quantity_kg: 40,
-        quantity: 40,
-        cooked_time: new Date(Date.now() - 10 * 3600000).toISOString(),
-        expiry_time: new Date(Date.now() + 36 * 3600000).toISOString(),
-        pickup_address: '12 Green Way, Market District',
-        latitude: 12.9800,
-        longitude: 77.6000,
-        status: 'NGO Accepted',
-        created_at: new Date(Date.now() - 14400000).toISOString(),
-        ai_predictions: [
-          {
-            priority: 'Medium',
-            urgency_score: 48,
-            estimated_meals: 120,
-            recommended_ngo_name: 'Community Feast Network',
-            reason: 'Fresh produce requiring distribution within 36 hours.'
-          }
-        ]
-      }
-    ];
-
-    if (filters.status) {
-      return mockList.filter(d => d.status === filters.status);
-    }
-    return mockList;
+    return [];
   }
 }
 
