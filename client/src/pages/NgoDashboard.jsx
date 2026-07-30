@@ -110,6 +110,17 @@ export const NgoDashboard = () => {
                 const confidence = prediction.confidenceScore || 94;
                 const isAccepted = item.status === 'NGO Accepted' || item.status === 'Volunteer Assigned' || item.status === 'Delivered' || item.status === 'Completed';
 
+                const categoryImages = {
+                  cooked_meal: 'https://images.unsplash.com/photo-1563379091339-03b21ab4a4f8?auto=format&fit=crop&w=800&q=80',
+                  bakery: 'https://images.unsplash.com/photo-1509440159596-0249088772ff?auto=format&fit=crop&w=800&q=80',
+                  raw_produce: 'https://images.unsplash.com/photo-1610832958506-aa56368176cf?auto=format&fit=crop&w=800&q=80',
+                  packaged_food: 'https://images.unsplash.com/photo-1584308666744-24d5c474f2ae?auto=format&fit=crop&w=800&q=80'
+                };
+                const genericOld = 'https://images.unsplash.com/photo-1555396273-367ea4eb4db5?auto=format&fit=crop&w=800&q=80';
+                const itemImage = (!item.image_url || item.image_url === genericOld)
+                  ? (categoryImages[item.food_category] || categoryImages.cooked_meal)
+                  : item.image_url;
+
                 return (
                   <div key={item.id} className="glass-card rounded-2xl p-6 border border-slate-800 space-y-4 flex flex-col justify-between relative">
                     
@@ -123,7 +134,7 @@ export const NgoDashboard = () => {
 
                       <div className="flex items-start gap-3">
                         <img
-                          src={item.image_url || 'https://images.unsplash.com/photo-1555396273-367ea4eb4db5?auto=format&fit=crop&w=800&q=80'}
+                          src={itemImage}
                           alt={item.title}
                           className="w-16 h-16 rounded-xl object-cover border border-slate-800 shrink-0"
                         />

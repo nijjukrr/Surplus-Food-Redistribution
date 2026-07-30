@@ -12,17 +12,30 @@ class DonationService {
     const cookedAt = donationData.cooked_time || donationData.cooked_at || new Date().toISOString();
     const expiryAt = donationData.expiry_time || donationData.expiry_at || new Date(Date.now() + 4 * 3600000).toISOString();
 
+    const categoryImages = {
+      cooked_meal: 'https://images.unsplash.com/photo-1563379091339-03b21ab4a4f8?auto=format&fit=crop&w=800&q=80',
+      bakery: 'https://images.unsplash.com/photo-1509440159596-0249088772ff?auto=format&fit=crop&w=800&q=80',
+      raw_produce: 'https://images.unsplash.com/photo-1610832958506-aa56368176cf?auto=format&fit=crop&w=800&q=80',
+      packaged_food: 'https://images.unsplash.com/photo-1584308666744-24d5c474f2ae?auto=format&fit=crop&w=800&q=80'
+    };
+
+    const category = donationData.food_category || 'cooked_meal';
+    const defaultImage = categoryImages[category] || categoryImages.cooked_meal;
+    const finalImage = (donationData.image_url && donationData.image_url !== 'https://images.unsplash.com/photo-1555396273-367ea4eb4db5?auto=format&fit=crop&w=800&q=80')
+      ? donationData.image_url 
+      : defaultImage;
+
     // Flexible payload matching both custom Supabase schema columns & standard schema columns
     const dbPayload = {
       restaurant_id: user?.id || '11111111-1111-1111-1111-111111111111',
       food_name: title,
       quantity: qty,
       unit: 'kg',
-      food_category: donationData.food_category || 'cooked_meal',
+      food_category: category,
       cooked_at: cookedAt,
       expiry_at: expiryAt,
       pickup_address: donationData.pickup_address || 'Default Address',
-      image_url: donationData.image_url || 'https://images.unsplash.com/photo-1555396273-367ea4eb4db5?auto=format&fit=crop&w=800&q=80',
+      image_url: finalImage,
       status: 'Created',
       created_at: new Date().toISOString()
     };
@@ -34,7 +47,8 @@ class DonationService {
       cooked_time: cookedAt,
       expiry_time: expiryAt,
       restaurant_name: donationData.restaurant_name || 'Royal Spice Bistro',
-      food_type: donationData.food_type || 'veg'
+      food_type: donationData.food_type || 'veg',
+      image_url: finalImage
     };
 
     if (isConfigured()) {
@@ -52,7 +66,8 @@ class DonationService {
             title: data.food_name || title,
             quantity_kg: data.quantity || qty,
             cooked_time: data.cooked_at || cookedAt,
-            expiry_time: data.expiry_at || expiryAt
+            expiry_time: data.expiry_at || expiryAt,
+            image_url: data.image_url || finalImage
           };
         } else if (error) {
           console.warn('[Supabase Insert Warning]: Falling back to full schema payload:', error.message);
@@ -66,6 +81,7 @@ class DonationService {
               food_category: dbPayload.food_category,
               quantity_kg: qty,
               pickup_address: dbPayload.pickup_address,
+              image_url: finalImage,
               status: 'Created'
             })
             .select()
@@ -140,17 +156,33 @@ class DonationService {
         query = query.eq('restaurant_id', filters.restaurant_id);
       }
 
+      const categoryImages = {
+        cooked_meal: 'https://images.unsplash.com/photo-1563379091339-03b21ab4a4f8?auto=format&fit=crop&w=800&q=80',
+        bakery: 'https://images.unsplash.com/photo-1509440159596-0249088772ff?auto=format&fit=crop&w=800&q=80',
+        raw_produce: 'https://images.unsplash.com/photo-1610832958506-aa56368176cf?auto=format&fit=crop&w=800&q=80',
+        packaged_food: 'https://images.unsplash.com/photo-1584308666744-24d5c474f2ae?auto=format&fit=crop&w=800&q=80'
+      };
+      const genericOld = 'https://images.unsplash.com/photo-1555396273-367ea4eb4db5?auto=format&fit=crop&w=800&q=80';
+
       const { data, error } = await query;
       if (!error && data && data.length > 0) {
         // Map table column names to unified client format
-        return data.map(d => ({
-          ...d,
-          title: d.title || d.food_name || 'Surplus Food',
-          quantity_kg: d.quantity_kg || d.quantity || 10,
-          cooked_time: d.cooked_time || d.cooked_at || d.created_at,
-          expiry_time: d.expiry_time || d.expiry_at || new Date(Date.now() + 4 * 3600000).toISOString(),
-          restaurant_name: d.restaurant_name || 'Royal Spice Bistro'
-        }));
+        return data.map(d => {
+          const cat = d.food_category || 'cooked_meal';
+          const resolvedImg = (!d.image_url || d.image_url === genericOld)
+            ? (categoryImages[cat] || categoryImages.cooked_meal)
+            : d.image_url;
+
+          return {
+            ...d,
+            title: d.title || d.food_name || 'Surplus Food',
+            quantity_kg: d.quantity_kg || d.quantity || 10,
+            cooked_time: d.cooked_time || d.cooked_at || d.created_at,
+            expiry_time: d.expiry_time || d.expiry_at || new Date(Date.now() + 4 * 3600000).toISOString(),
+            restaurant_name: d.restaurant_name || 'Royal Spice Bistro',
+            image_url: resolvedImg
+          };
+        });
       }
     }
 
@@ -169,12 +201,25 @@ class DonationService {
         .eq('id', id)
         .single();
       if (!error && data) {
+        const categoryImages = {
+          cooked_meal: 'https://images.unsplash.com/photo-1563379091339-03b21ab4a4f8?auto=format&fit=crop&w=800&q=80',
+          bakery: 'https://images.unsplash.com/photo-1509440159596-0249088772ff?auto=format&fit=crop&w=800&q=80',
+          raw_produce: 'https://images.unsplash.com/photo-1610832958506-aa56368176cf?auto=format&fit=crop&w=800&q=80',
+          packaged_food: 'https://images.unsplash.com/photo-1584308666744-24d5c474f2ae?auto=format&fit=crop&w=800&q=80'
+        };
+        const genericOld = 'https://images.unsplash.com/photo-1555396273-367ea4eb4db5?auto=format&fit=crop&w=800&q=80';
+        const cat = data.food_category || 'cooked_meal';
+        const resolvedImg = (!data.image_url || data.image_url === genericOld)
+          ? (categoryImages[cat] || categoryImages.cooked_meal)
+          : data.image_url;
+
         return {
           ...data,
           title: data.title || data.food_name || 'Surplus Food',
           quantity_kg: data.quantity_kg || data.quantity || 10,
           cooked_time: data.cooked_time || data.cooked_at || data.created_at,
-          expiry_time: data.expiry_time || data.expiry_at || new Date(Date.now() + 4 * 3600000).toISOString()
+          expiry_time: data.expiry_time || data.expiry_at || new Date(Date.now() + 4 * 3600000).toISOString(),
+          image_url: resolvedImg
         };
       }
     }

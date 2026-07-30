@@ -161,13 +161,26 @@ export const RestaurantDashboard = () => {
                   <label className="block text-xs font-semibold text-slate-300 mb-1">Food Category</label>
                   <select
                     value={formData.food_category}
-                    onChange={(e) => setFormData({ ...formData, food_category: e.target.value })}
+                    onChange={(e) => {
+                      const cat = e.target.value;
+                      const categoryPresetImages = {
+                        cooked_meal: 'https://images.unsplash.com/photo-1563379091339-03b21ab4a4f8?auto=format&fit=crop&w=800&q=80',
+                        bakery: 'https://images.unsplash.com/photo-1509440159596-0249088772ff?auto=format&fit=crop&w=800&q=80',
+                        raw_produce: 'https://images.unsplash.com/photo-1610832958506-aa56368176cf?auto=format&fit=crop&w=800&q=80',
+                        packaged_food: 'https://images.unsplash.com/photo-1584308666744-24d5c474f2ae?auto=format&fit=crop&w=800&q=80'
+                      };
+                      setFormData({ 
+                        ...formData, 
+                        food_category: cat, 
+                        image_url: categoryPresetImages[cat] || categoryPresetImages.cooked_meal 
+                      });
+                    }}
                     className="w-full px-4 py-3 rounded-xl bg-slate-950 border border-slate-800 text-slate-200 text-xs focus:outline-none focus:border-emerald-500"
                   >
-                    <option value="cooked_meal">Hot Cooked Meal</option>
-                    <option value="bakery">Bakery & Bread</option>
-                    <option value="raw_produce">Fresh Fruit & Produce</option>
-                    <option value="packaged_food">Packaged Goods</option>
+                    <option value="cooked_meal">Hot Cooked Meal (Biryani / Curry)</option>
+                    <option value="bakery">Bakery & Bread (Pastries / Loaves)</option>
+                    <option value="raw_produce">Fresh Fruit & Produce (Apples / Veggies)</option>
+                    <option value="packaged_food">Packaged Goods (Canned / Snacks)</option>
                   </select>
                 </div>
 
@@ -248,6 +261,17 @@ export const RestaurantDashboard = () => {
                 const prediction = item.ai_predictions?.[0] || item.ai_prediction || {};
                 const confidence = prediction.confidenceScore || 95;
 
+                const categoryImages = {
+                  cooked_meal: 'https://images.unsplash.com/photo-1563379091339-03b21ab4a4f8?auto=format&fit=crop&w=800&q=80',
+                  bakery: 'https://images.unsplash.com/photo-1509440159596-0249088772ff?auto=format&fit=crop&w=800&q=80',
+                  raw_produce: 'https://images.unsplash.com/photo-1610832958506-aa56368176cf?auto=format&fit=crop&w=800&q=80',
+                  packaged_food: 'https://images.unsplash.com/photo-1584308666744-24d5c474f2ae?auto=format&fit=crop&w=800&q=80'
+                };
+                const genericOld = 'https://images.unsplash.com/photo-1555396273-367ea4eb4db5?auto=format&fit=crop&w=800&q=80';
+                const itemImage = (!item.image_url || item.image_url === genericOld)
+                  ? (categoryImages[item.food_category] || categoryImages.cooked_meal)
+                  : item.image_url;
+
                 return (
                   <div key={item.id} className="glass-card rounded-2xl p-6 border border-slate-800 space-y-4 flex flex-col justify-between">
                     
@@ -264,7 +288,7 @@ export const RestaurantDashboard = () => {
 
                       <div className="flex items-start gap-3">
                         <img
-                          src={item.image_url || 'https://images.unsplash.com/photo-1555396273-367ea4eb4db5?auto=format&fit=crop&w=800&q=80'}
+                          src={itemImage}
                           alt={item.title}
                           className="w-16 h-16 rounded-xl object-cover border border-slate-800 shrink-0"
                         />
