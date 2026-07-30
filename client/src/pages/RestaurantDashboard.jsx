@@ -316,6 +316,21 @@ export const RestaurantDashboard = () => {
                         </div>
                       </div>
 
+                      {/* Quick Status Action Button */}
+                      {item.status !== 'Delivered' && item.status !== 'Completed' && (
+                        <div className="pt-1 flex justify-end">
+                          <button
+                            onClick={() => {
+                              updateStoredStatus(item.id, 'Delivered');
+                              setDonations(prev => prev.map(d => d.id === item.id ? { ...d, status: 'Delivered' } : d));
+                            }}
+                            className="px-3.5 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 font-bold text-[11px] flex items-center gap-1.5 border border-slate-700 transition-all"
+                          >
+                            <Sparkles className="w-3.5 h-3.5 text-emerald-400" /> Complete & Mark Delivered
+                          </button>
+                        </div>
+                      )}
+
                     </div>
 
                   </div>
