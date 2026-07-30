@@ -132,19 +132,12 @@ export const NgoDashboard = () => {
                         </span>
                       </div>
 
-                      <div className="flex items-start gap-3">
-                        <img
-                          src={itemImage}
-                          alt={item.title}
-                          className="w-16 h-16 rounded-xl object-cover border border-slate-800 shrink-0"
-                        />
-                        <div>
-                          <h3 className="font-bold text-sm text-slate-100">{item.title}</h3>
-                          <p className="text-xs text-slate-400">{item.restaurant_name || 'Royal Spice Bistro'}</p>
-                          <p className="text-xs font-bold text-emerald-400 mt-1">
-                            {item.quantity_kg} kg • ~{prediction.estimatedMeals || Math.round(item.quantity_kg * 3)} Meals
-                          </p>
-                        </div>
+                      <div>
+                        <h3 className="font-bold text-base text-slate-100">{item.title}</h3>
+                        <p className="text-xs text-slate-400">{item.restaurant_name || 'Royal Spice Bistro'}</p>
+                        <p className="text-xs font-bold text-emerald-400 mt-1">
+                          {item.quantity_kg} kg • ~{prediction.estimatedMeals || Math.round(item.quantity_kg * 3)} Meals
+                        </p>
                       </div>
 
                       {/* AI Reasoning Insights */}
