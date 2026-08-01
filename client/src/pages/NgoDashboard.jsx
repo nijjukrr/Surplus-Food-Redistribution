@@ -4,6 +4,7 @@ import { PriorityBadge, StatusBadge } from '../components/StatusBadge';
 import PortalLayout from '../layouts/PortalLayout';
 import { HeartHandshake, CheckCircle2, XCircle, Sparkles, MapPin, Clock, Truck, User, Phone, Bike, FileText } from 'lucide-react';
 import { useLocation } from 'react-router-dom';
+import { useAuth } from '../context/AuthContext';
 
 import { getStoredDrivers } from '../services/driverService';
 
@@ -23,6 +24,7 @@ const updateStoredItem = (id, updates) => {
 };
 
 export const NgoDashboard = () => {
+  const { user } = useAuth();
   const location = useLocation();
   const currentTab = location.pathname.split('/')[2] || 'home';
 
@@ -39,17 +41,20 @@ export const NgoDashboard = () => {
     ngoApi.getNearby()
       .then((res) => {
         const apiList = res.data.data || [];
-        const merged = [...savedCustom, ...apiList.filter(a => !savedCustom.some(c => c.id === a.id))];
+        const merged = [...savedCustom, ...apiList.filter(a => !savedCustom.some(c => String(c.id) === String(a.id)))];
         setDonations(merged);
       })
       .catch(() => {
-        if (savedCustom.length > 0) setDonations(savedCustom);
+        setDonations(savedCustom);
       })
       .finally(() => setLoading(false));
   };
 
   useEffect(() => {
     fetchDonations();
+    const handleStorage = () => fetchDonations();
+    window.addEventListener('storage', handleStorage);
+    return () => window.removeEventListener('storage', handleStorage);
   }, [location.pathname]);
 
   const handleAccept = async (id) => {
@@ -65,14 +70,33 @@ export const NgoDashboard = () => {
     }
   };
 
+  const getDriverBusyStatus = (drvId) => {
+    const drvObj = availableDrivers.find(a => a.id === drvId);
+    const activeMission = donations.find(d => 
+      (d.assigned_driver?.id === drvId || (drvObj && d.assigned_driver?.name === drvObj.name)) && 
+      d.status !== 'Delivered' && 
+      d.status !== 'delivered' &&
+      d.status !== 'Cancelled'
+    );
+    return activeMission ? { isBusy: true, activeMissionTitle: activeMission.title } : { isBusy: false };
+  };
+
   const handleAssignDriver = (donationId) => {
     const driverId = selectedDrivers[donationId] || availableDrivers[0].id;
     const driverObj = availableDrivers.find(d => d.id === driverId) || availableDrivers[0];
+
+    const busyInfo = getDriverBusyStatus(driverObj.id);
+    if (busyInfo.isBusy) {
+      alert(`Driver "${driverObj.name}" is currently on an active pickup mission ("${busyInfo.activeMissionTitle}"). The next food donation cannot be assigned to him until he completes his current delivery!`);
+      return;
+    }
 
     updateStoredItem(donationId, {
       status: 'Volunteer Assigned',
       assigned_driver: driverObj
     });
+
+    window.dispatchEvent(new Event('storage'));
 
     setDonations(prev => prev.map(d => d.id === donationId ? {
       ...d,
@@ -112,7 +136,7 @@ export const NgoDashboard = () => {
             <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-rose-500/10 text-rose-400 text-xs font-bold border border-rose-500/20 mb-2">
               <HeartHandshake className="w-3.5 h-3.5" /> NGO BENEFICIARY PORTAL
             </div>
-            <h1 className="text-3xl font-extrabold text-white">Care & Share Foundation</h1>
+            <h1 className="text-3xl font-extrabold text-white">{user?.name || 'Care & Share Foundation'}</h1>
             <p className="text-xs text-slate-400 mt-1">Accept surplus food donations and assign registered delivery partner drivers for pickup.</p>
           </div>
 
@@ -195,11 +219,14 @@ export const NgoDashboard = () => {
                               onChange={(e) => setSelectedDrivers({ ...selectedDrivers, [item.id]: e.target.value })}
                               className="w-full px-3 py-2 rounded-xl bg-slate-950 border border-slate-800 text-slate-200 text-xs focus:outline-none focus:border-blue-500"
                             >
-                              {availableDrivers.map(drv => (
-                                <option key={drv.id} value={drv.id}>
-                                  {drv.name} ({drv.bike})
-                                </option>
-                              ))}
+                              {availableDrivers.map(drv => {
+                                const busyInfo = getDriverBusyStatus(drv.id);
+                                return (
+                                  <option key={drv.id} value={drv.id} disabled={busyInfo.isBusy}>
+                                    {drv.name} ({drv.bike}) {busyInfo.isBusy ? `[BUSY - Pickup in Progress]` : '[AVAILABLE]'}
+                                  </option>
+                                );
+                              })}
                             </select>
                           </div>
                           <button

@@ -19,9 +19,11 @@ export const Navbar = () => {
         
         {/* Brand Logo */}
         <Link to="/" className="flex items-center gap-2.5 group">
-          <div className="w-10 h-10 rounded-xl bg-gradient-to-tr from-emerald-500 to-teal-400 flex items-center justify-center shadow-lg shadow-emerald-500/20 group-hover:scale-105 transition-transform">
-            <UtensilsCrossed className="w-5 h-5 text-slate-950 stroke-[2.5]" />
-          </div>
+          <img
+            src="/logo.png"
+            alt="FoodBridge AI"
+            className="h-10 w-auto object-contain rounded-xl bg-white/95 p-1 shadow-lg shadow-emerald-500/20 group-hover:scale-105 transition-transform"
+          />
           <div>
             <span className="font-extrabold text-lg tracking-tight bg-gradient-to-r from-white via-slate-100 to-slate-300 bg-clip-text text-transparent">
               FoodBridge <span className="text-emerald-400">AI</span>
@@ -30,13 +32,16 @@ export const Navbar = () => {
           </div>
         </Link>
 
-        {/* Navigation Links: About Us & How It Works */}
+        {/* Navigation Links: About Us, How It Works & Coimbatore NGO Map */}
         <nav className="hidden md:flex items-center gap-8 text-xs font-bold text-slate-400">
           <a href="#about" className="hover:text-emerald-400 transition-colors">
             About Us
           </a>
           <a href="#how-it-works" className="hover:text-emerald-400 transition-colors">
             How It Works
+          </a>
+          <a href="#coimbatore-map" className="hover:text-emerald-400 transition-colors flex items-center gap-1.5 text-emerald-400 font-bold bg-emerald-500/10 px-3 py-1.5 rounded-full border border-emerald-500/20">
+            <span>📍 Coimbatore Map</span>
           </a>
         </nav>
 

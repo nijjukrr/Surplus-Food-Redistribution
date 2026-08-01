@@ -3,8 +3,9 @@ import { donationsApi, notificationsApi } from '../services/api';
 import { PriorityBadge, StatusBadge } from '../components/StatusBadge';
 import PortalLayout from '../layouts/PortalLayout';
 import { useAuth } from '../context/AuthContext';
-import { Utensils, Plus, Sparkles, ShieldCheck, Clock } from 'lucide-react';
+import { Utensils, Plus, Sparkles, ShieldCheck, Clock, MapPin, Bus } from 'lucide-react';
 import { useLocation } from 'react-router-dom';
+import { findNearestBusStop } from '../data/coimbatoreBusStops';
 
 const getStoredDonations = () => {
   try {
@@ -19,6 +20,7 @@ const saveCustomDonation = (donation) => {
   const existing = getStoredDonations();
   const updated = [donation, ...existing.filter(d => d.id !== donation.id)];
   localStorage.setItem('foodbridge_custom_donations', JSON.stringify(updated));
+  window.dispatchEvent(new Event('storage'));
 };
 
 export const RestaurantDashboard = () => {
@@ -39,7 +41,7 @@ export const RestaurantDashboard = () => {
     food_type: 'veg',
     quantity_kg: 20,
     expiry_hours: 4,
-    pickup_address: '108 Grand Avenue, Downtown'
+    pickup_address: 'Cross Cut Road, Gandhipuram, Coimbatore'
   });
 
   const fetchDonations = () => {
@@ -48,11 +50,11 @@ export const RestaurantDashboard = () => {
     donationsApi.getAll()
       .then((res) => {
         const apiList = res.data.data || [];
-        const merged = [...savedCustom, ...apiList.filter(a => !savedCustom.some(c => c.id === a.id))];
+        const merged = [...savedCustom, ...apiList.filter(a => !savedCustom.some(c => String(c.id) === String(a.id)))];
         setDonations(merged);
       })
       .catch(() => {
-        if (savedCustom.length > 0) setDonations(savedCustom);
+        setDonations(savedCustom);
       })
       .finally(() => setLoading(false));
 
@@ -63,6 +65,9 @@ export const RestaurantDashboard = () => {
 
   useEffect(() => {
     fetchDonations();
+    const handleStorage = () => fetchDonations();
+    window.addEventListener('storage', handleStorage);
+    return () => window.removeEventListener('storage', handleStorage);
   }, [location.pathname]);
 
   const handleSubmit = async (e) => {
@@ -71,23 +76,30 @@ export const RestaurantDashboard = () => {
 
     const title = formData.title || 'Surplus Food Package';
     const qty = Number(formData.quantity_kg) || 20;
+    const address = formData.pickup_address || 'DB Road, RS Puram, Coimbatore';
+    const nearestBusStop = findNearestBusStop(address);
 
     const created = {
       id: 'don-' + Date.now(),
       title: title,
       food_category: formData.food_category,
       quantity_kg: qty,
-      pickup_address: formData.pickup_address || '108 Grand Avenue, Downtown',
+      expiry_hours: Number(formData.expiry_hours) || 4,
+      pickup_address: address,
+      bus_stop_name: nearestBusStop.name,
+      bus_stop_landmark: nearestBusStop.landmark,
+      lat: nearestBusStop.lat,
+      lng: nearestBusStop.lng,
       status: 'Approved',
       created_at: new Date().toISOString(),
-      restaurant_name: user?.name || 'Royal Spice Bistro',
+      restaurant_name: user?.name || 'Royal Spice Bistro (Coimbatore)',
       ai_predictions: [{
         priority: 'High',
         confidenceScore: 96,
         urgencyScore: 92,
         estimatedMeals: Math.round(qty * 3),
-        recommendedNGO: 'Care & Share Foundation',
-        reason: 'High urgency: Fresh surplus food package analyzed by Gemini AI.'
+        recommendedNGO: 'No Food Waste (Coimbatore HQ)',
+        reason: `Pickup point automatically assigned to ${nearestBusStop.name} landmark.`
       }]
     };
 
@@ -224,14 +236,34 @@ export const RestaurantDashboard = () => {
               </div>
 
               <div>
-                <label className="block text-xs font-semibold text-slate-300 mb-1">Pickup Address</label>
+                <label className="block text-xs font-semibold text-slate-300 mb-1">Pickup Address (Coimbatore)</label>
                 <input
                   type="text"
                   required
+                  placeholder="e.g. Cross Cut Road, Gandhipuram, Coimbatore"
                   value={formData.pickup_address}
                   onChange={(e) => setFormData({ ...formData, pickup_address: e.target.value })}
                   className="w-full px-4 py-3 rounded-xl bg-slate-950 border border-slate-800 text-slate-200 text-xs focus:outline-none focus:border-emerald-500"
                 />
+
+                {/* Live Coimbatore Bus Stop Pickup Landmark Preview */}
+                {formData.pickup_address && (() => {
+                  const busStop = findNearestBusStop(formData.pickup_address);
+                  return (
+                    <div className="mt-2.5 p-3 rounded-xl bg-emerald-500/10 border border-emerald-500/20 text-xs flex items-center justify-between text-emerald-300">
+                      <div className="flex items-center gap-2">
+                        <Bus className="w-4 h-4 text-emerald-400 shrink-0" />
+                        <div>
+                          <p className="font-bold text-white">Assigned Bus Stop Landmark: {busStop.name}</p>
+                          <p className="text-[11px] text-slate-400">{busStop.landmark}</p>
+                        </div>
+                      </div>
+                      <span className="px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-400 font-bold text-[10px]">
+                        Coimbatore Hub
+                      </span>
+                    </div>
+                  );
+                })()}
               </div>
 
               <div className="pt-2 flex justify-end gap-3">

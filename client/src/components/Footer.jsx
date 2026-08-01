@@ -7,9 +7,7 @@ export const Footer = () => {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col md:flex-row items-center justify-between gap-6">
         
         <div className="flex items-center gap-3">
-          <div className="w-8 h-8 rounded-lg bg-emerald-500/20 text-emerald-400 flex items-center justify-center border border-emerald-500/30">
-            <UtensilsCrossed className="w-4 h-4" />
-          </div>
+          <img src="/logo.png" alt="FoodBridge Logo" className="h-9 w-auto object-contain rounded-lg bg-white/95 p-1 shadow-sm" />
           <div>
             <span className="font-bold text-slate-200 text-sm">FoodBridge AI Platform</span>
             <p className="text-[11px] text-slate-500">Zero Food Waste. Zero Hunger. Powered by Gemini AI & Supabase.</p>

@@ -2,6 +2,13 @@ import React, { createContext, useContext, useState, useEffect } from 'react';
 
 const AuthContext = createContext();
 
+const getDefaultName = (r) => {
+  if (r === 'ngo') return 'Care & Share Foundation';
+  if (r === 'volunteer') return 'Alex Rivera';
+  if (r === 'admin') return 'System Administrator';
+  return 'Royal Spice Bistro';
+};
+
 export const AuthProvider = ({ children }) => {
   const [role, setRoleState] = useState(localStorage.getItem('foodbridge_role') || 'restaurant');
   const [isAuthenticated, setIsAuthenticated] = useState(true);
@@ -9,46 +16,43 @@ export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(() => {
     const savedRole = localStorage.getItem('foodbridge_role') || 'restaurant';
     const savedId = localStorage.getItem('foodbridge_user_id') || '11111111-1111-1111-1111-111111111111';
-    
-    let name = 'Royal Spice Bistro';
-    if (savedRole === 'ngo') name = 'Care & Share Foundation';
-    if (savedRole === 'volunteer') name = 'Alex Rivera';
-    if (savedRole === 'admin') name = 'System Administrator';
+    const savedName = localStorage.getItem('foodbridge_user_name') || getDefaultName(savedRole);
 
     return {
       id: savedId,
-      name,
+      name: savedName,
       email: `${savedRole}@foodbridge.ai`,
       role: savedRole,
       is_verified: true
     };
   });
 
-  const setRole = (newRole) => {
+  const setRole = (newRole, customName) => {
     localStorage.setItem('foodbridge_role', newRole);
     setRoleState(newRole);
     
-    let name = 'Royal Spice Bistro';
     let id = '11111111-1111-1111-1111-111111111111';
-    
     if (newRole === 'ngo') {
-      name = 'Care & Share Foundation';
       id = '22222222-2222-2222-2222-222222222222';
     } else if (newRole === 'volunteer') {
-      name = 'Alex Rivera';
       id = '33333333-3333-3333-3333-333333333333';
     } else if (newRole === 'admin') {
-      name = 'System Administrator';
       id = '44444444-4444-4444-4444-444444444444';
     }
 
+    const finalName = customName && customName.trim() ? customName.trim() : (localStorage.getItem('foodbridge_user_name') || getDefaultName(newRole));
     localStorage.setItem('foodbridge_user_id', id);
-    setUser({ id, name, email: `${newRole}@foodbridge.ai`, role: newRole, is_verified: true });
+    localStorage.setItem('foodbridge_user_name', finalName);
+
+    setUser({ id, name: finalName, email: `${newRole}@foodbridge.ai`, role: newRole, is_verified: true });
     setIsAuthenticated(true);
   };
 
-  const login = (email, password, targetRole) => {
-    setRole(targetRole || 'restaurant');
+  const login = (email, password, targetRole, customName) => {
+    if (customName && customName.trim()) {
+      localStorage.setItem('foodbridge_user_name', customName.trim());
+    }
+    setRole(targetRole || 'restaurant', customName);
     setIsAuthenticated(true);
     return true;
   };

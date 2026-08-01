@@ -32,8 +32,8 @@ export const Sidebar = () => {
           title: 'Restaurant Portal',
           subtitle: 'Donor Controller',
           icon: Building2,
-          color: 'from-emerald-500 to-teal-400',
-          badgeBg: 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20',
+          color: 'from-white to-slate-300',
+          badgeBg: 'bg-white/10 text-white border-white/20',
           links: [
             { path: '/restaurant', label: 'Dashboard Home', icon: Building2 },
             { path: '/restaurant/donate', label: 'Donate Surplus Food', icon: PlusCircle },
@@ -46,8 +46,8 @@ export const Sidebar = () => {
           title: 'NGO Hub Portal',
           subtitle: 'Beneficiary Controller',
           icon: HeartHandshake,
-          color: 'from-rose-500 to-pink-400',
-          badgeBg: 'bg-rose-500/10 text-rose-400 border-rose-500/20',
+          color: 'from-white to-slate-300',
+          badgeBg: 'bg-white/10 text-white border-white/20',
           links: [
             { path: '/ngo', label: 'Dashboard Home', icon: HeartHandshake },
             { path: '/ngo/available', label: 'Available Donations', icon: Clock },
@@ -60,8 +60,8 @@ export const Sidebar = () => {
           title: 'NGO Delivery Partner',
           subtitle: 'Volunteer Courier Driver',
           icon: Truck,
-          color: 'from-blue-500 to-indigo-400',
-          badgeBg: 'bg-blue-500/10 text-blue-400 border-blue-500/20',
+          color: 'from-white to-slate-300',
+          badgeBg: 'bg-white/10 text-white border-white/20',
           links: [
             { path: '/volunteer', label: 'Dashboard Home', icon: Truck },
             { path: '/volunteer/deliveries', label: 'Assigned Deliveries', icon: CheckSquare },
@@ -75,8 +75,8 @@ export const Sidebar = () => {
           title: 'Admin Master',
           subtitle: 'System Controller',
           icon: ShieldCheck,
-          color: 'from-indigo-500 to-purple-400',
-          badgeBg: 'bg-indigo-500/10 text-indigo-400 border-indigo-500/20',
+          color: 'from-white to-slate-300',
+          badgeBg: 'bg-white/10 text-white border-white/20',
           links: [
             { path: '/admin', label: 'Dashboard Overview', icon: ShieldCheck },
             { path: '/admin/pending', label: 'Pending Approvals', icon: Clock },
@@ -98,11 +98,13 @@ export const Sidebar = () => {
         {/* Brand & Portal Header */}
         <div className="p-6 border-b border-slate-800/80">
           <div className="flex items-center gap-3">
-            <div className={`w-10 h-10 rounded-xl bg-gradient-to-tr ${config.color} flex items-center justify-center shadow-lg shadow-emerald-500/10`}>
-              <HeaderIcon className="w-5 h-5 text-slate-950 stroke-[2.5]" />
-            </div>
-            <div>
-              <h2 className="font-extrabold text-sm text-white tracking-tight">{config.title}</h2>
+            <img
+              src="/logo.png"
+              alt="FoodBridge Logo"
+              className="w-10 h-10 object-contain rounded-xl bg-white/95 p-1 shadow-md shrink-0"
+            />
+            <div className="min-w-0">
+              <h2 className="font-extrabold text-sm text-white tracking-tight truncate">{config.title}</h2>
               <span className={`inline-block px-2 py-0.5 rounded-full text-[10px] font-bold border mt-0.5 ${config.badgeBg}`}>
                 {config.subtitle}
               </span>
