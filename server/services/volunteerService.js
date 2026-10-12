@@ -8,7 +8,13 @@ class VolunteerService {
    */
   async assignVolunteer(donationId, volunteerUser) {
     const volunteerName = volunteerUser?.profile?.full_name || volunteerUser?.full_name || 'Alex Rivera';
-    const volunteerId = volunteerUser?.id || '33333333-3333-3333-3333-333333333333';
+    let volunteerId = volunteerUser?.id || '33333333-3333-3333-3333-333333333333';
+    if (isConfigured()) {
+      const { data, error } = await supabase.from('volunteers').select('id')
+        .eq('profile_id', volunteerId).single();
+      if (error) throw error;
+      volunteerId = data.id;
+    }
 
     let delivery = {
       id: 'del-' + Date.now(),
@@ -30,7 +36,8 @@ class VolunteerService {
         })
         .select()
         .single();
-      if (!error && data) delivery = data;
+      if (error) throw error;
+      if (data) delivery = data;
     }
 
     // Update donation status to 'Volunteer Assigned'
@@ -55,7 +62,7 @@ class VolunteerService {
     else if (step === 'completed' || step === 'Completed') nextStatus = 'Completed';
 
     if (isConfigured()) {
-      const updateData = { status: nextStatus };
+      const updateData = { status: nextStatus === 'Completed' ? 'Delivered' : nextStatus };
       if (nextStatus === 'Picked Up') updateData.pickup_time = new Date().toISOString();
       if (nextStatus === 'Delivered' || nextStatus === 'Completed') updateData.delivery_time = new Date().toISOString();
 

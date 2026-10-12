@@ -124,10 +124,17 @@ export const RestaurantDashboard = () => {
     // Sync with backend API in background
     try {
       const expiry_time = new Date(Date.now() + formData.expiry_hours * 3600000).toISOString();
-      await donationsApi.create({
+      const response = await donationsApi.create({
         ...formData,
         expiry_time
       });
+      const stored = response.data.data;
+      if (stored?.id) {
+        const remaining = getStoredDonations().filter(d => d.id !== created.id);
+        localStorage.setItem('foodbridge_custom_donations', JSON.stringify(remaining));
+        saveCustomDonation({ ...created, ...stored });
+        fetchDonations();
+      }
     } catch (err) {
       console.warn('[Donation Sync Notice]: Backend API call:', err.message);
     } finally {

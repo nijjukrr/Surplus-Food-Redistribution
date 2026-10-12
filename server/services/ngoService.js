@@ -8,7 +8,13 @@ class NgoService {
    */
   async acceptDonation(donationId, ngoUser) {
     const ngoName = ngoUser?.profile?.organization_name || ngoUser?.organization_name || 'Care & Share Foundation';
-    const ngoId = ngoUser?.id || '22222222-2222-2222-2222-222222222222';
+    let ngoId = ngoUser?.id || '22222222-2222-2222-2222-222222222222';
+    if (isConfigured()) {
+      const { data, error } = await supabase.from('ngos').select('id')
+        .eq('profile_id', ngoId).single();
+      if (error) throw error;
+      ngoId = data.id;
+    }
 
     let pickupRequest = {
       id: 'req-' + Date.now(),
@@ -32,9 +38,11 @@ class NgoService {
           .select()
           .single();
 
-        if (!error && data) pickupRequest = data;
+        if (error) throw error;
+        if (data) pickupRequest = data;
       } catch (err) {
         console.warn('[NGO Accept DB Warning]:', err.message);
+        throw err;
       }
     }
 

@@ -14,18 +14,26 @@ class DonationService {
       const expiryAt = donationData.expiry_time || donationData.expiry_at || new Date(Date.now() + 4 * 3600000).toISOString();
 
       const isValidUUID = (str) => typeof str === 'string' && /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(str);
-      const restaurantId = isValidUUID(user?.id) ? user.id : '11111111-1111-1111-1111-111111111111';
+      let restaurantId = null;
+      if (isConfigured() && isValidUUID(user?.id)) {
+        const { data: restaurant, error } = await supabase.from('restaurants')
+          .select('id').eq('profile_id', user.id).maybeSingle();
+        if (error) throw error;
+        restaurantId = restaurant?.id || null;
+      }
 
       const category = donationData.food_category || 'cooked_meal';
 
       const dbPayload = {
         restaurant_id: restaurantId,
-        food_name: title,
-        quantity: qty,
-        unit: 'kg',
+        restaurant_name: donationData.restaurant_name || 'Royal Spice Bistro',
+        title,
+        description: donationData.description || null,
+        quantity_kg: qty,
         food_category: category,
-        cooked_at: cookedAt,
-        expiry_at: expiryAt,
+        food_type: donationData.food_type || 'veg',
+        cooked_time: cookedAt,
+        expiry_time: expiryAt,
         pickup_address: donationData.pickup_address || 'Default Address',
         status: 'Approved',
         created_at: new Date().toISOString()
@@ -51,18 +59,20 @@ class DonationService {
             .select()
             .single();
 
-          if (!error && data) {
+          if (error) throw error;
+          if (data) {
             createdDonation = {
               ...createdDonation,
               ...data,
-              title: data.food_name || title,
-              quantity_kg: data.quantity || qty,
-              cooked_time: data.cooked_at || cookedAt,
-              expiry_time: data.expiry_at || expiryAt
+              title: data.title,
+              quantity_kg: data.quantity_kg,
+              cooked_time: data.cooked_time,
+              expiry_time: data.expiry_time
             };
           }
         } catch (dbErr) {
           console.warn('[Donation Insert Warning]:', dbErr.message);
+          throw dbErr;
         }
       }
 
@@ -90,6 +100,7 @@ class DonationService {
       return createdDonation;
     } catch (err) {
       console.error('[Create Donation Error]:', err.message);
+      if (isConfigured()) throw err;
       return {
         id: 'don-' + Date.now(),
         title: donationData.title || 'Surplus Food',

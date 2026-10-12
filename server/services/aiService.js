@@ -90,7 +90,7 @@ Return ONLY raw JSON, no markdown formatting or extra text.
         // Update status of donation to 'AI Analysed'
         await supabase
           .from('food_donations')
-          .update({ status: 'AI Analysed' })
+          .update({ status: donation.status === 'Approved' ? 'Approved' : 'AI Analysed' })
           .eq('id', donation.id);
       } catch (dbErr) {
         console.error('[AI Service DB Error]: Failed to persist prediction:', dbErr.message);
